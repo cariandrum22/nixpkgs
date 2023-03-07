@@ -6767,6 +6767,8 @@ with pkgs;
 
   libchipcard = callPackage ../development/libraries/aqbanking/libchipcard.nix { };
 
+  libdaq = callPackage ../development/libraries/libdaq { };
+
   libdbi-drivers-base = libdbi-drivers.override {
     withMysql = false;
     withSqlite = false;
