@@ -8663,6 +8663,8 @@ with pkgs;
 
   virtualenv-clone = with python3Packages; toPythonApplication virtualenv-clone;
 
+  vpp = callPackage ../servers/vpp { };
+
   mkfontdir = mkfontscale;
   xcbproto = xcb-proto;
 
