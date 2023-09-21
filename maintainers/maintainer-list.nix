@@ -4524,6 +4524,13 @@
     githubId = 34030186;
     keys = [ { fingerprint = "8BC7 74E4 A2EC 7507 3B61  A647 0BBB 1C8B 1C36 39EE"; } ];
   };
+  cariandrum22 = {
+    email = "cariandrum22@gmail.com";
+    githubId = 1421516;
+    github = "cariandrum22";
+    name = "Takafumi Asano";
+    keys = [ { fingerprint = "48F3 02B6 3152 5FA4 D5A4  0106 AC7A A417 4AC6 4BA5"; } ];
+  };
   carloscraveiro = {
     email = "carlos.craveiro@usp.br";
     github = "CarlosCraveiro";
