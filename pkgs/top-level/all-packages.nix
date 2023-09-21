@@ -6700,6 +6700,8 @@ with pkgs;
     callPackages ../development/libraries/science/astronomy/indilib/indi-3rdparty.nix { }
   );
 
+  intel-ipsec-mb = callPackage ../development/libraries/intel-ipsec-mb { };
+
   ios-cross-compile = callPackage ../development/compilers/ios-cross-compile/9.2.nix { };
 
   irrlicht =
