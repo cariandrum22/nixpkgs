@@ -12,8 +12,8 @@
 , elfutils
 , zlib
 , rdma-core
-, python310
-, python310Packages
+, python311
+, python311Packages
 , openssl
 , libuuid
 , subunit
@@ -45,11 +45,14 @@ let
   });
 
   dpdk' = dpdk.overrideAttrs (old: rec {
-    version = "22.07";
+    version = "23.11";
     src = fetchurl {
       url = "https://fast.dpdk.org/rel/dpdk-${version}.tar.xz";
-      sha256 = "sha256-n2Tf3gdf21cIy2Leg4uP+4kVdf7R4dKusma6yj38m+o";
+      sha256 = "sha256-ZPpY/fyelRDo5BTjvt0WW9PUykZaIxsoAyP4PNU/2GU=";
     };
+    mesonFlags = old.mesonFlags ++ [
+      "-Denable_driver_sdk=true"
+    ];
   });
 
   rdma-core' = rdma-core.overrideAttrs (old: rec {
@@ -66,25 +69,26 @@ let
 in
 stdenv.mkDerivation rec {
   pname = "vpp";
-  version = "23.06";
+  version = "24.02";
   src = fetchgit {
     url = "https://gerrit.fd.io/r/vpp";
     rev = "refs/tags/v${version}";
-    sha256 = "sha256-9dn/rpjouwjFUFoQYd8Go1rV4ThZ8gh/egIuXfdPys0=";
+    sha256 = "sha256-Cfm0Xzsx2UgUvIIeq5wBN6tA9ynCUa5bslEQk8wbd6E=";
   };
 
-  patches = [
-    ./0001-fix-nsh-plugin-loading.patch
-    ./0002-explicity-include-std-array.patch
-  ];
+  patches = [ ./0001-explicity-include-std-array.patch ];
 
   sourceRoot = "vpp/src";
 
   quicly = callPackage ./quicly { };
 
-  nativeBuildInputs = [ llvmPackages_14.clang cmake dpdk' intel-ipsec-mb' xdp-tools' libbpf libmnl elfutils zlib quicly rdma-core' python310 python310Packages.ply openssl libuuid subunit pkg-config libpcap jansson libnl libdaq srtp' mbedtls_2 check ];
+  nativeBuildInputs = [ llvmPackages_14.clang cmake dpdk' intel-ipsec-mb' xdp-tools' libbpf libmnl elfutils zlib quicly rdma-core' python311 python311Packages.ply openssl libuuid subunit pkg-config libpcap jansson libnl libdaq srtp' mbedtls_2 check ];
 
   hardeningDisable = [ "fortify" "bindnow" ];
+
+  env = {
+    VPP_BUILD_HOST = "nixpkgs";
+  };
 
   cmakeFlags = [
     "-DCMAKE_BUILD_TYPE=release"
@@ -99,7 +103,7 @@ stdenv.mkDerivation rec {
     # Replace hard-coded bash with one that can be referenced from
     # the built environment
     substituteInPlace scripts/generate_version_h \
-      --replace "#!/bin/bash" "#!$(command -v bash)"
+      --replace "#!/usr/bin/env bash" "#!$(command -v bash)"
 
     # Remove pkg from subdirectory to be built
     substituteInPlace CMakeLists.txt --replace \
