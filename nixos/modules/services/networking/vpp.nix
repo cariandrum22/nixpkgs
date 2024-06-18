@@ -165,14 +165,14 @@ in
       enable = mkOption {
         type = types.bool;
         default = false;
-        description = mdDoc "Whether to run VPP.";
+        description = "Whether to run VPP.";
       };
 
       unix = {
         interactive = mkOption {
           type = types.bool;
           default = false;
-          description = mdDoc ''
+          description = ''
             Attach CLI to stdin/out and provide a debugging command line interface. Implies nodaemon.
           '';
         };
@@ -180,7 +180,7 @@ in
         nodaemon = mkOption {
           type = types.bool;
           default = true;
-          description = mdDoc ''
+          description = ''
             Do not fork / background the vpp process. Typical when invoking VPP applications from a process monitor.
           '';
         };
@@ -188,7 +188,7 @@ in
         log = mkOption {
           type = types.nullOr types.str;
           default = "/var/log/vpp/vpp.log";
-          description = mdDoc ''
+          description = ''
             Logs the startup configuration and all subsequent CLI commands in filename. Very useful in situations where folks don't remember or can't be bothered to include CLI commands in bug reports.
           '';
         };
@@ -196,7 +196,7 @@ in
         startup-config = mkOption {
           type = types.nullOr types.path;
           default = null;
-          description = mdDoc ''
+          description = ''
             Read startup operational configuration from filename. The contents of the file will be performed as though entered at the CLI.
           '';
         };
@@ -204,7 +204,7 @@ in
         gid = mkOption {
           type = types.nullOr types.str;
           default = null;
-          description = mdDoc ''
+          description = ''
             Sets the effective group ID to the input group ID or group name of the calling process.
           '';
         };
@@ -212,7 +212,7 @@ in
         full-coredump = mkOption {
           type = types.bool;
           default = false;
-          description = mdDoc ''
+          description = ''
             Ask the Linux kernel to dump all memory-mapped address regions, instead of just text+data+bss.
           '';
         };
@@ -220,7 +220,7 @@ in
         coredump-size = mkOption {
           type = types.nullOr types.str;
           default = null;
-          description = mdDoc ''
+          description = ''
             Set the maximum size of the coredump file. The input value can be set in GB, MB, KB or bytes, or set to `unlimited`.
           '';
         };
@@ -228,7 +228,7 @@ in
         cli-listen = mkOption {
           type = types.nullOr types.str;
           default = "/run/vpp/cli.sock";
-          description = mdDoc ''
+          description = ''
             Bind the CLI to listen at address localhost on TCP port 5002. This will accept an ipaddress:port pair or a filesystem path; in the latter case a local Unix socket is opened instead.
           '';
         };
@@ -236,7 +236,7 @@ in
         cli-line-mode = mkOption {
           type = types.nullOr types.bool;
           default = false;
-          description = mdDoc ''
+          description = ''
             Disable character-by-character I/O on stdin. Useful when combined with, for example, emacs M-x gud-gdb.
           '';
         };
@@ -244,7 +244,7 @@ in
         cli-prompt = mkOption {
           type = types.nullOr types.str;
           default = null;
-          description = mdDoc ''
+          description = ''
             Configure the CLI prompt to be string.
           '';
         };
@@ -252,7 +252,7 @@ in
         cli-history-limit = mkOption {
           type = types.nullOr types.int;
           default = null;
-          description = mdDoc ''
+          description = ''
             Limit command history to <n> lines. A value of 0 disables command history. Default value: 50
           '';
         };
@@ -260,7 +260,7 @@ in
         cli-no-banner = mkOption {
           type = types.bool;
           default = false;
-          description = mdDoc ''
+          description = ''
             Disable the login banner on stdin and Telnet connections.
           '';
         };
@@ -268,7 +268,7 @@ in
         cli-no-pager = mkOption {
           type = types.bool;
           default = false;
-          description = mdDoc ''
+          description = ''
             Disable the output pager.
           '';
         };
@@ -276,7 +276,7 @@ in
         cli-pager-buffer-limit = mkOption {
           type = types.nullOr types.int;
           default = null;
-          description = mdDoc ''
+          description = ''
             Limit pager buffer to <n> lines of output. A value of 0 disables the pager. Default value: 100000
           '';
         };
@@ -284,7 +284,7 @@ in
         runtime-dir = mkOption {
           type = types.nullOr types.str;
           default = null;
-          description = mdDoc ''
+          description = ''
             Set the runtime directory, which is the default location for certain files, like socket files. Default is based on User ID used to start VPP. Typically it is `root`, which defaults to `/run/vpp/`. Otherwise, defaults to `/run/user/<uid>/vpp/`.
           '';
         };
@@ -292,7 +292,7 @@ in
         poll-sleep-usec = mkOption {
           type = types.nullOr types.int;
           default = null;
-          description = mdDoc ''
+          description = ''
             Add a fixed-sleep between main loop poll. Default is 0, which is not to sleep.
           '';
         };
@@ -300,7 +300,7 @@ in
         pidfile = mkOption {
           type = types.nullOr types.str;
           default = null;
-          description = mdDoc ''
+          description = ''
             Writes the pid of the main thread in the given filename.
           '';
         };
@@ -313,7 +313,7 @@ in
               num-rx-queues = mkOption {
                 type = types.nullOr types.int;
                 default = null;
-                description = mdDoc ''
+                description = ''
                   Number of RX queues to configure on the device. Default value: 1
                 '';
               };
@@ -321,7 +321,7 @@ in
               num-tx-queues = mkOption {
                 type = types.nullOr types.int;
                 default = null;
-                description = mdDoc ''
+                description = ''
                   Number of TX queues to configure on the device. Default value: 1
                 '';
               };
@@ -329,7 +329,7 @@ in
               num-rx-desc = mkOption {
                 type = types.nullOr types.int;
                 default = null;
-                description = mdDoc ''
+                description = ''
                   Number of RX descriptors to configure on the device. Default value: 1024
                 '';
               };
@@ -337,7 +337,7 @@ in
               num-tx-desc = mkOption {
                 type = types.nullOr types.int;
                 default = null;
-                description = mdDoc ''
+                description = ''
                   Number of TX descriptors to configure on the device. Default value: 1024
                 '';
               };
@@ -345,7 +345,7 @@ in
               vlan-strip-offload = mkOption {
                 type = types.nullOr types.bool;
                 default = null;
-                description = mdDoc ''
+                description = ''
                   VLAN strip offload mode for interface. VLAN stripping is off by default for all NICs except VICs, using ENIC driver, which has VLAN stripping on by default.
                 '';
               };
@@ -356,21 +356,21 @@ in
                     hqos-thread = mkOption {
                       type = types.nullOr types.int;
                       default = null;
-                      description = mdDoc ''
+                      description = ''
                         HQoS thread used by this interface. To setup a pool of threads that are shared by all HQoS interfaces, set via the `cpu` section using either `corelist-hqos-threads` or `coremask-hqos-threads`.
                       '';
                     };
                   };
                 });
                 default = null;
-                description = mdDoc ''
+                description = ''
                   Enable the Hierarchical Quaity-of-Service (HQoS) scheduler, default is disabled. This enables HQoS on specific output interface.
                 '';
               };
             };
           }));
           default = null;
-          description = mdDoc ''
+          description = ''
             White-list [as in, attempt to drive] a specific PCI device. PCI-dev is a string of the form “DDDD:BB:SS.F” where:
 
             ```
@@ -387,7 +387,7 @@ in
         vdev = mkOption {
           type = types.nullOr (types.listOf types.str);
           default = null;
-          description = mdDoc ''
+          description = ''
             Provide a DPDK EAL command to specify bonded Ethernet interfaces, operating modes and PCI addresses of slave links. Only XOR balanced (mode 2) mode is supported.
 
             **Example:**
@@ -404,7 +404,7 @@ in
         num-mbufs = mkOption {
           type = types.nullOr types.int;
           default = null;
-          description = mdDoc ''
+          description = ''
             Increase number of buffers allocated. May be needed in scenarios with large number of interfaces and worker threads, or a lot of physical interfaces with multiple RSS queues. Value is per CPU socket. Default is 16384.
           '';
         };
@@ -412,7 +412,7 @@ in
         no-pci = mkOption {
           type = types.bool;
           default = false;
-          description = mdDoc ''
+          description = ''
             When VPP is started, if an interface is not owned by the linux kernel (interface is administratively down), VPP will attempt to manage the interface. `no-pci` indicates that VPP should not walk the PCI table looking for interfaces.
           '';
         };
@@ -420,7 +420,7 @@ in
         no-hugetlb = mkOption {
           type = types.bool;
           default = false;
-          description = mdDoc ''
+          description = ''
             Don't use huge TLB pages. Potentially useful for running simulator images.
           '';
         };
@@ -436,7 +436,7 @@ in
         uio-driver = mkOption {
           type = types.nullOr (types.enum [ "uio_pci_generic" "igb_uio" "vfio-pci" "auto" ]);
           default = null;
-          description = mdDoc ''
+          description = ''
             Change UIO driver used by VPP. Default is `auto`.
           '';
         };
@@ -444,7 +444,7 @@ in
         socket-mem = mkOption {
           type = types.nullOr types.int;
           default = null;
-          description = mdDoc ''
+          description = ''
             Change hugepages allocation per-socket, needed only if there is need for larger number of mbufs. Default is 64 hugepages on each detected CPU socket.
           '';
         };
@@ -452,7 +452,7 @@ in
         enable-tcp-udp-checksum = mkOption {
           type = types.bool;
           default = false;
-          description = mdDoc ''
+          description = ''
             Enables UDP/TCP RX checksum offload.
           '';
         };
@@ -460,7 +460,7 @@ in
         no-multi-seg = mkOption {
           type = types.bool;
           default = false;
-          description = mdDoc ''
+          description = ''
             Disable mutli-segment buffers, improves performance but disables Jumbo MTU support.
           '';
         };
@@ -468,7 +468,7 @@ in
         no-tx-checksum-offload = mkOption {
           type = types.bool;
           default = false;
-          description = mdDoc ''
+          description = ''
             Disables UDP/TCP TX checksum offload. Typically needed for use faster vector PMDs (together with no-multi-seg).
           '';
         };
@@ -476,7 +476,7 @@ in
         decimal-interface-names = mkOption {
           type = types.bool;
           default = false;
-          description = mdDoc ''
+          description = ''
             Format DPDK device names with decimal, as opposed to hexadecimal.
           '';
         };
@@ -484,7 +484,7 @@ in
         log-level = mkOption {
           type = types.nullOr (types.enum [ "emergency" "alert" "critical" "error" "warning" "notice" "info" "debug" ]);
           default = null;
-          description = mdDoc ''
+          description = ''
             Set the log level for DPDK logs. Default is `notice`.
           '';
         };
@@ -494,7 +494,7 @@ in
         workers = mkOption {
           type = types.nullOr types.int;
           default = null;
-          description = mdDoc ''
+          description = ''
             Create <n> worker threads.
 
             **Example:** workers = 4;
@@ -504,7 +504,7 @@ in
         io = mkOption {
           type = types.nullOr types.int;
           default = null;
-          description = mdDoc ''
+          description = ''
             Create <n> I/O threads.
 
             **Example:** io = 2;
@@ -514,7 +514,7 @@ in
         main-thread-io = mkOption {
           type = types.bool;
           default = false;
-          description = mdDoc ''
+          description = ''
             Handle i/o devices from thread 0, hand off traffic to worker threads. Requires “workers <n>”.
           '';
         };
@@ -522,7 +522,7 @@ in
         skip-cores = mkOption {
           type = types.nullOr types.int;
           default = null;
-          description = mdDoc ''
+          description = ''
             Sets number of CPU core(s) to be skipped (1 … N-1). Skipped CPU core(s) are not used for pinning main thread and working thread(s). The main thread is automatically pinned to the first available CPU core and worker(s) are pinned to next free CPU core(s) after core assigned to main threadLeave the low nn bits of the process affinity mask clear.
 
             **Example:** skip-cores = 4;
@@ -533,7 +533,7 @@ in
         main-core = mkOption {
           type = types.nullOr types.int;
           default = null;
-          description = mdDoc ''
+          description = ''
             Assign main thread to a specific core.
           '';
         };
@@ -541,7 +541,7 @@ in
         coremask-workers = mkOption {
           type = types.nullOr types.str;
           default = null;
-          description = mdDoc ''
+          description = ''
             Place I/O threads according to the bitmap hex-mask.
 
             **Example:** coremask-io = "0x0000000003000030";
@@ -551,7 +551,7 @@ in
         corelist-workers = mkOption {
           type = types.nullOr types.str;
           default = null;
-          description = mdDoc ''
+          description = ''
             Same as coremask-workers but accepts a list of cores instead of a bitmap.
 
             **Example:** corelist-workers = "2-3,18-19";
@@ -561,7 +561,7 @@ in
         corelist-io = mkOption {
           type = types.nullOr types.str;
           default = null;
-          description = mdDoc ''
+          description = ''
             Same as coremask-io but accepts a list of cores instead of a bitmap.
 
             **Example:** corelist-io = "4-5,20-21";
@@ -571,7 +571,7 @@ in
         coremask-hqos-threads = mkOption {
           type = types.nullOr types.str;
           default = null;
-          description = mdDoc ''
+          description = ''
             Place HQoS threads according to the bitmap hex-mask. A HQoS thread can run multiple HQoS objects each associated with different output interfaces.
 
             **Example:** coremask-hqos-threads = "0x000000000C0000C0";
@@ -581,7 +581,7 @@ in
         corelist-hqos-threads = mkOption {
           type = types.nullOr types.str;
           default = null;
-          description = mdDoc ''
+          description = ''
             Same as coremask-hqos-threads but accepts a list of cores instead of a bitmap.
 
             **Example:** corelist-hqos-threads = "6-7,22-23";
@@ -591,7 +591,7 @@ in
         thread-prefix = mkOption {
           type = types.nullOr types.str;
           default = null;
-          description = mdDoc ''
+          description = ''
             Set a prefix to be prepended to each thread name. The thread name already contains an underscore. If not provided, the default is `vpp`. Currently, prefix used on threads: `vpp_main`, `vpp_stats`
 
             **Example:** thread-prefix = "vpp1";
@@ -601,7 +601,7 @@ in
         scheduler-priority = mkOption {
           type = types.nullOr types.int;
           default = null;
-          description = mdDoc ''
+          description = ''
             Set the scheduler priority. Only valid if the `scheduler-policy` is set to `fifo` or `rr`. The valid ranges for the scheduler priority depends on the `scheduler-policy` and the current kernel version running. The range is typically 1 to 99, but see the linux man pages for `sched` for more details. If this value is not set, the current linux kernel default is left in place.
 
             **Example:** scheduler-priority = 50;
@@ -611,7 +611,7 @@ in
         extraConfig = mkOption {
           type = types.nullOr types.lines;
           default = null;
-          description = mdDoc ''
+          description = ''
             Extra configuration for `cpu` parameters.
           '';
         };
@@ -620,7 +620,7 @@ in
       extraConfig = mkOption {
         type = types.lines;
         default = "";
-        description = mdDoc ''
+        description = ''
           Extra configuration for `startup.conf`.
         '';
       };
