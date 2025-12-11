@@ -1,21 +1,22 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, cmake
-, openssl
-, perl
-, pkg-config
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  cmake,
+  openssl,
+  perl,
+  pkg-config,
 }:
 stdenv.mkDerivation rec {
   pname = "quicly";
-  version = "0.1.4-vpp";
+  version = "0.1.5-vpp";
 
   src = fetchFromGitHub {
     owner = "vpp-quic";
     repo = "quicly";
     rev = "v${version}";
     fetchSubmodules = true;
-    sha256 = "sha256-Sr5XSKslEhjNHHpV5pLEsi1/GwTatseQnmUaqMctA2I=";
+    sha256 = "sha256-TJh/0c1Aw1K6MI1N1LtZWOdFOAEGa7isTRiBEICcV28=";
   };
 
   patches = [
@@ -33,9 +34,9 @@ stdenv.mkDerivation rec {
 
   configurePhase = ''
     mkdir -p build-quicly build-picotls
-    cmake -DWITH_DTRACE=OFF -DCMAKE_INSTALL_PREFIX:PATH=$out -S . -B build-quicly
+    cmake -DWITH_DTRACE=OFF -DCMAKE_INSTALL_PREFIX:PATH=$out -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -S . -B build-quicly
     cd deps/picotls
-    cmake -DWITH_DTRACE=OFF -DCMAKE_INSTALL_PREFIX:PATH=$out -S . -B ../../build-picotls
+    cmake -DWITH_DTRACE=OFF -DCMAKE_INSTALL_PREFIX:PATH=$out -DCMAKE_POLICY_VERSION_MINIMUM=3.5 -S . -B ../../build-picotls
     cd $TMP/source
   '';
 

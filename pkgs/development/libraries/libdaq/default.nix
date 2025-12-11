@@ -8,13 +8,13 @@
 
 stdenv.mkDerivation rec {
   pname = "libdaq";
-  version = "3.0.11";
+  version = "3.0.21";
 
   src = fetchFromGitHub {
     owner = "snort3";
     repo = "libdaq";
     rev = "v${version}";
-    sha256 = "sha256-3Pk0zKFztY/m4IFlGQ1t0KwF8kj3j9jZCjglsdtjbXc=";
+    sha256 = "sha256-ifG7Ccuwus+ftTzjTrvgkGDAxEhYT9pJVrILn7K17P8=";
   };
 
   nativeBuildInputs = [ autoreconfHook pkg-config ];

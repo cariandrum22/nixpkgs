@@ -1,24 +1,28 @@
-{ lib
-, stdenv
-, fetchFromGitHub
-, nasm
+{
+  lib,
+  stdenv,
+  fetchFromGitHub,
+  nasm,
 }:
 
 stdenv.mkDerivation rec {
   pname = "intel-ipsec-mb";
-  version = "1.3";
+  version = "1.5";
 
   src = fetchFromGitHub {
     owner = "intel";
     repo = "intel-ipsec-mb";
     rev = "v${version}";
-    sha256 = "sha256-H6QkThIHRbRZMICKYFGF1zE2zSvGX+WMPr84rpnMHw8=";
+    sha256 = "sha256-NBjyS6LDsBZxftJT7AIVLsNciyxf0oRHLCJ4ZNkLFo0=";
   };
   sourceRoot = "source/lib";
 
   nativeBuildInputs = [ nasm ];
 
-  makeFlags = [ "PREFIX=$(out)" "NOLDCONFIG=y"];
+  makeFlags = [
+    "PREFIX=$(out)"
+    "NOLDCONFIG=y"
+  ];
 
   doCheck = true;
 
@@ -31,7 +35,10 @@ stdenv.mkDerivation rec {
       applications. It can be used for application such as: IPsec, TLS, Wireless (RAN), Cable or
       MPEG DRM.
     '';
-    platforms = [ "x86_64-linux" "x86_64-freebsd" ];
+    platforms = [
+      "x86_64-linux"
+      "x86_64-freebsd"
+    ];
     maintainers = with maintainers; [ cariandrum22 ];
   };
 }
