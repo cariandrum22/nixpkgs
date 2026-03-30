@@ -7730,6 +7730,11 @@ with pkgs;
 
   virtualenv-clone = with python3Packages; toPythonApplication virtualenv-clone;
 
+  vppPackages = recurseIntoAttrs {
+    upstream = vpp;
+    extended = pkgs."vpp-extended";
+  };
+
   mkfontdir = mkfontscale;
   xcbproto = xcb-proto;
 
