@@ -7,6 +7,7 @@
   cmake,
   pkg-config,
   python3,
+  nixosTests,
   dpdk,
   intel-ipsec-mb,
   xdp-tools,
@@ -326,7 +327,9 @@ let
       };
       updateScript = nix-update-script { };
       tests = {
+        vpp = nixosTests.vpp;
         options = callPackage ./tests.nix { };
+        configuration = callPackage ./module-tests.nix { };
       };
     };
     meta = {
