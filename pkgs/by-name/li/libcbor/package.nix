@@ -4,6 +4,10 @@
   fetchFromGitHub,
   cmake,
   cmocka,
+  shared ? !stdenv.hostPlatform.isStatic,
+  # null preserves upstream's automatic PIC and LTO settings.
+  enablePIC ? null,
+  enableLTO ? null,
 
   # for passthru.tests
   libfido2,
@@ -41,7 +45,12 @@ stdenv.mkDerivation (finalAttrs: {
 
   cmakeFlags =
     lib.optional finalAttrs.finalPackage.doCheck "-DWITH_TESTS=ON"
-    ++ lib.optional (!stdenv.hostPlatform.isStatic) "-DBUILD_SHARED_LIBS=ON";
+    # Upstream defaults to a static library.
+    ++ lib.optional shared "-DBUILD_SHARED_LIBS=ON"
+    ++ lib.optional (enablePIC != null) (lib.cmakeBool "CMAKE_POSITION_INDEPENDENT_CODE" enablePIC)
+    ++ lib.optional (enableLTO != null) (
+      lib.cmakeBool "CMAKE_INTERPROCEDURAL_OPTIMIZATION_RELEASE" enableLTO
+    );
 
   # Tests are restricted while pkgsStatic.cmocka is broken. Tracked at:
   # https://github.com/NixOS/nixpkgs/issues/213623
