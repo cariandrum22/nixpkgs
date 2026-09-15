@@ -21,6 +21,7 @@
   pciutils,
   withExamples ? [ ],
   shared ? false,
+  enableDriverSDK ? false,
   machine ? (
     if stdenv.hostPlatform.isx86_64 then
       "nehalem"
@@ -88,7 +89,8 @@ stdenv.mkDerivation (finalAttrs: {
   ++ lib.optionals (machine != null) [ (lib.mesonOption "machine" machine) ]
   ++ lib.optionals (withExamples != [ ]) [
     (lib.mesonOption "examples" (lib.concatStringsSep "," withExamples))
-  ];
+  ]
+  ++ lib.optional enableDriverSDK (lib.mesonBool "enable_driver_sdk" true);
 
   postInstall = ''
     # Remove Sphinx cache files. Not only are they not useful, but they also
