@@ -3,6 +3,7 @@
   stdenv,
   fetchFromGitHub,
   nasm,
+  shared ? true,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
@@ -23,7 +24,8 @@ stdenv.mkDerivation (finalAttrs: {
   makeFlags = [
     "PREFIX=$(out)"
     "NOLDCONFIG=y"
-  ];
+  ]
+  ++ lib.optional (!shared) "SHARED=n";
 
   meta = {
     description = "Intel Multi-Buffer Crypto for IPsec Library";
