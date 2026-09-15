@@ -1,0 +1,60 @@
+Keep filtering local to add_vpp_plugin. A return() from a CMake macro exits
+the calling CMakeLists.txt and skips later plugins in the same directory
+(e.g. linux_nl after linux_cp). A function wrapper gives return() the intended
+scope while preserving macro argument substitution inside the implementation.
+Guard follow-up operations on targets which may have been filtered out.
+
+--- a/cmake/plugin.cmake
++++ b/cmake/plugin.cmake
+@@ -11,7 +11,7 @@
+ # See the License for the specific language governing permissions and
+ # limitations under the License.
+ 
+-macro(add_vpp_plugin name)
++macro(_vpp_add_plugin name)
+   cmake_parse_arguments(PLUGIN
+     ""
+     "LINK_FLAGS;COMPONENT;DEV_COMPONENT"
+@@ -152,6 +152,10 @@
+   )
+ endmacro()
+ 
++function(add_vpp_plugin name)
++  _vpp_add_plugin(${name} ${ARGN})
++endfunction()
++
+ macro(vpp_plugin_find_library plugin var name)
+   find_library(${var} NAMES ${name} ${ARGN})
+   mark_as_advanced(${var})
+--- a/plugins/lb/CMakeLists.txt
++++ b/plugins/lb/CMakeLists.txt
+@@ -32,4 +32,6 @@
+   lb_test.c
+ )
+ 
+-target_link_libraries(lb_test_plugin vatclient)
++if(TARGET lb_test_plugin)
++  target_link_libraries(lb_test_plugin vatclient)
++endif()
+--- a/plugins/nat/CMakeLists.txt
++++ b/plugins/nat/CMakeLists.txt
+@@ -198,7 +198,7 @@
+   DEPENDS test_pnat
+ )
+ 
+-if(VPP_BUILD_TESTS_WITH_COVERAGE)
++if(VPP_BUILD_TESTS_WITH_COVERAGE AND TARGET test_pnat)
+   set(TARGET_NAME test_pnat)
+   set(COV_SOURCES ${CMAKE_SOURCE_DIR}/plugins/nat/pnat/pnat.c ${CMAKE_SOURCE_DIR}/plugins/nat/pnat/pnat_node.h ${CMAKE_SOURCE_DIR}/plugins/nat/pnat/pnat_node.c)
+ 
+--- a/plugins/selog/CMakeLists.txt
++++ b/plugins/selog/CMakeLists.txt
+@@ -16,4 +16,6 @@
+   selog_shared.h
+ )
+ 
+-add_subdirectory(selog_client)
+\ No newline at end of file
++if(TARGET selog_plugin)
++  add_subdirectory(selog_client)
++endif()
