@@ -1,0 +1,15 @@
+Initialize the SNAT port-allocation counters before passing them to
+cnat_rsession_create. GCC 15 cannot prove that the conditional initialization
+in that helper runs before the counters are read, and VPP enables -Werror.
+
+--- a/plugins/cnat/cnat_node_snat.c
++++ b/plugins/cnat/cnat_node_snat.c
+@@ -103,7 +103,7 @@
+
+   clib_atomic_add_fetch (&ts->ts_session_refcnt, 1);
+
+-  int sport_retries, sport_failures;
++  int sport_retries = 0, sport_failures = 0;
+   cnat_rsession_create (rw, b->flow_id, ret_fib_index, 0 /* add client */, &rw->tuple.port[VLIB_RX],
+ 			&sport_retries, &sport_failures);
+   if (sport_retries)

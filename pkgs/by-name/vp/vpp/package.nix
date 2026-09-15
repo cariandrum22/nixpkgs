@@ -41,22 +41,20 @@
   zlib,
 }:
 let
-  dpdk' = dpdk.overrideAttrs (old: {
-    mesonFlags = old.mesonFlags ++ [ "-Denable_driver_sdk=true" ];
-  });
+  dpdk' = dpdk.override { enableDriverSDK = true; };
 
   # >=25.02 uses /etc/os-release, so we substitute it
   osRelease = writeText "os-release" "ID=nixos";
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "vpp";
-  version = "26.02";
+  version = "26.06";
 
   src = fetchFromGitHub {
     owner = "FDio";
     repo = "vpp";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-z9yh1ZMP28SSzHNBdO7UnvVqsIqtXUcwYZUH1UdBUB0=";
+    hash = "sha256-pYqDa1PA4GX+sk3gNR87lhsyKSVsqIA3NeEWVQPvubM=";
   };
 
   postPatch = ''
@@ -78,6 +76,11 @@ stdenv.mkDerivation (finalAttrs: {
   sourceRoot = "${finalAttrs.src.name}/src";
 
   enableParallelBuilding = true;
+  # API targets share generated files and can race when built in parallel.
+  preBuild = ''
+    cmake --build . --target api_headers --parallel 1
+  '';
+
   cmakeFlags = [
     "-DVPP_PLATFORM=default"
     "-DVPP_LIBRARY_DIR=lib"
@@ -119,6 +122,7 @@ stdenv.mkDerivation (finalAttrs: {
   strictDeps = true;
 
   patches = [
+    ./cnat-initialize-port-counters.patch
     # VPP links to static RDMA/XDP by default
     ./use-dynamic-libs.patch
   ]
