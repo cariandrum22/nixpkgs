@@ -1,6 +1,6 @@
 {
   lib,
-  llvmPackages_18,
+  llvmPackages_21,
   nix-update-script,
   fetchFromGitHub,
   callPackage,
@@ -29,7 +29,7 @@
   subunit,
   check,
   gtk2,
-  vppStdenv ? llvmPackages_18.stdenv,
+  vppStdenv ? llvmPackages_21.stdenv,
   quicly ? callPackage ./quicly { inherit openssl; },
   picotls ? quicly,
   mbedtlsPackage ? null,
@@ -72,7 +72,7 @@
 }:
 let
   buildStdenv = vppStdenv;
-  version = "26.06";
+  version = "26.10";
   python = python3.withPackages (ps: [ ps.ply ]);
   selected = names: name: names == null || builtins.elem name names;
   pluginSelected = name: selected plugins name && !(builtins.elem name excludedPlugins);
@@ -191,7 +191,7 @@ let
     owner = "FDio";
     repo = "vpp";
     tag = "v${version}";
-    hash = "sha256-pYqDa1PA4GX+sk3gNR87lhsyKSVsqIA3NeEWVQPvubM=";
+    hash = "sha256-00z2J6bR09KyZGlwoPxXGCjJJ4ksi4CyfuSTZ9sixi4=";
   };
   vpp-papi = python3.pkgs.buildPythonPackage {
     pname = "vpp-papi";
@@ -363,7 +363,7 @@ assert lib.assertMsg
       && lib.versionOlder (mbedtlsPackage.version or "3") "3"
     )
   )
-  "vpp: withMbedtls requires an injected mbedtlsPackage compatible with mbedTLS 2.x; nixpkgs mbedTLS 3.x/4.x is not supported by VPP 26.06.";
+  "vpp: withMbedtls requires an injected mbedtlsPackage compatible with mbedTLS 2.x; nixpkgs mbedTLS 3.x/4.x is not supported by VPP ${version}.";
 assert lib.assertMsg (
   !withArmada || musdk != null
 ) "vpp: withArmada requires an injected musdk package.";

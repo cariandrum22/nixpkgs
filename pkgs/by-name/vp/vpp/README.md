@@ -1,4 +1,4 @@
-# Configurable VPP 26.06
+# Configurable VPP 26.10
 
 `pkgs.vpp` accepts the following
 package function arguments. Use `.override` on the registered package, or pass
@@ -129,11 +129,13 @@ The path in this example is relative to the root of this nixpkgs checkout.
 
 In this nixpkgs checkout:
 
+- DPDK is 26.07, matching VPP 26.10's external dependency version. DPDK 26.03
+  lacks the `RTE_BUS_DEVICE` API used by VPP 26.10 and cannot build its DPDK plugin.
 - VPP-compatible quicly/picotls are not independently packaged. `quicly` defaults
   to the local `quicly/` recipe at `0.1.6-vpp`, which also provides picotls.
   `picotls` defaults to that same package. Both can be injected independently;
   the supplied builds must match VPP's expected headers and static archives.
-- VPP 26.06 supports mbedTLS 2.x only. Nixpkgs removed `mbedtls_2` after its end
+- VPP 26.10 supports mbedTLS 2.x only. Nixpkgs removed `mbedtls_2` after its end
   of life; the available 3.x/4.x packages are incompatible. Enabling the feature
   requires an explicit compatible package, not merely `pkgs.mbedtls`.
 - Marvell MUSDK and OCTEON ROC are not packaged. Their arguments default to
@@ -150,8 +152,9 @@ pkgs.vpp.override {
 }
 ```
 
-`vppStdenv` selects the compiler environment (default: LLVM 18). `python3` selects
-the Python used both for API generation and the optional bindings.
+`vppStdenv` selects the compiler environment (default: LLVM 21, for compatibility
+with the current libstdc++ headers). `python3` selects the Python used both for
+API generation and the optional bindings.
 
 The Python library can also be used in an interpreter environment:
 
@@ -208,7 +211,25 @@ nix-build -A vpp -A vpp.tests.options -A vpp.tests.configuration
 
 `nixosTests.vpp` exercises the unified package. VM execution needs KVM.
 
-Validation of this 26.06 configuration on x86_64-linux:
+Validation of the 26.10 configuration on x86_64-linux:
+
+- Default build succeeds with LLVM 21 and DPDK 26.07, including the C/C++ VAPI
+  test binaries and Python bindings. It installs 107 plugins, 3 crypto-engine
+  libraries, and 3 drivers. All 348 checked ELF binaries and shared libraries
+  resolve their library dependencies.
+- Startup and restart succeed with 15 selected plugins, including DPDK, AF_XDP,
+  RDMA, Linux control-plane, QUIC/Quicly, Picotls, Snort, SRTP, and SASC. Native,
+  OpenSSL, IPsec MB, and DPDK cryptodev engines register. CLI and Python API
+  `show_version` report `26.10.0-nixos` after both starts, without manually
+  deleting shared memory between them. This uses an unprivileged process,
+  private sockets, ordinary memory pages, and DPDK `no-pci`; physical NICs and
+  the systemd service are not exercised by this check.
+- Package option and NixOS configuration checks pass.
+- The NixOS VM test evaluates. VM execution and hardware packet-processing tests
+  require KVM and the target network hardware, which are unavailable in this
+  build environment.
+
+Historical validation of the 26.06 configuration on x86_64-linux:
 
 - Default build: 104 plugins, 3 crypto engines, and 3 drivers. All installed
   shared libraries resolve their library dependencies. ACL, CNAT, QUIC/Quicly,
