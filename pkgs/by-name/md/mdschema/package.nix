@@ -8,17 +8,17 @@
 
 buildGoModule (finalAttrs: {
   pname = "mdschema";
-  version = "0.15.3";
+  version = "0.15.5";
   __structuredAttrs = true;
 
   src = fetchFromGitHub {
     owner = "jackchuka";
     repo = "mdschema";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-XI7KsxfPgVKSYjUOoVXLU6SIhYMVjlJyq05FgrLPL0k=";
+    hash = "sha256-C1kgwC8av0h9J6+NFDEZzGNc+llNIEwMtiolzSjPVcY=";
   };
 
-  vendorHash = "sha256-m2nwsdYab7w+aT7a4eXXKjnTRCaddm5z9aJRk2KTyN4=";
+  vendorHash = "sha256-4huAj+8K9KjaXe66py+Ebp5Jx/B78nbx5KaOa0a5gJI=";
 
   ldflags = [
     "-s"

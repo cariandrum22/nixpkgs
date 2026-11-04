@@ -8,6 +8,9 @@
   pnpmConfigHook,
   nodejs,
   makeWrapper,
+  pkg-config,
+  openssl,
+  cacert,
 }:
 
 rustPlatform.buildRustPackage (
@@ -28,7 +31,7 @@ rustPlatform.buildRustPackage (
 
         pnpm = pnpm_10;
         fetcherVersion = 3;
-        hash = "sha256-P7N2Y41W467PxEcg6EGBuEB1s6n7wfQh4Rg2Mv8z8bs=";
+        hash = "sha256-R439wJLsUyynpRItoa+x4AbTD3KG4qEaDIWnmVHvsMk=";
       };
 
       nativeBuildInputs = [
@@ -54,20 +57,39 @@ rustPlatform.buildRustPackage (
     __structuredAttrs = true;
 
     pname = "wealthfolio-server";
-    version = "3.7.0";
+    version = "3.11.0";
 
     src = fetchFromGitHub {
       owner = "wealthfolio";
       repo = "wealthfolio";
       tag = "v${finalAttrs.version}";
-      hash = "sha256-GsI2TrPXEiHKUnUxNNmYf2EveWlg5PJBGh5TYILK0yc=";
+      hash = "sha256-1caBvxUE4JRcRyHwyxfxVITF7QMWjWnnoIkkBXfUh0g=";
     };
 
     cargoRoot = ".";
     buildAndTestSubdir = "apps/server";
-    cargoHash = "sha256-vnmhaAoF3O5N+y3HpYZz+2j/WU1HAA5uyKtxLCJBqA4=";
+    cargoHash = "sha256-zim5nmTBsxvZqU7iobPf5orM0MAJLoXq5rvNgeM8+LE=";
 
-    nativeBuildInputs = [ makeWrapper ];
+    env = {
+      OPENSSL_NO_VENDOR = 1;
+      SSL_CERT_FILE = "${cacert}/etc/ssl/certs/ca-bundle.crt";
+    };
+
+    nativeBuildInputs = [
+      makeWrapper
+      pkg-config
+    ];
+
+    buildInputs = [ openssl ];
+
+    postPatch = ''
+      # The configuration tests intentionally wipe the environment to simulate a blank slate.
+      # This strips Nix's injected SSL_CERT_FILE. We use sed to patch the test files
+      # so that whenever they clear the environment, they immediately re-inject the cert path.
+      find apps/server/tests -type f -name "*.rs" -exec sed -i \
+        -e 's/\.env_clear()/.env_clear().env("SSL_CERT_FILE", std::env::var("SSL_CERT_FILE").unwrap_or_default())/g' \
+        {} +
+    '';
 
     postInstall = ''
       mkdir -p $out/share/wealthfolio/dist
@@ -77,6 +99,11 @@ rustPlatform.buildRustPackage (
       wrapProgram $out/bin/wealthfolio-server \
         --set WF_STATIC_DIR "$out/share/wealthfolio/dist"
     '';
+
+    passthru = {
+      inherit frontend;
+      updateScript = ./update.sh;
+    };
 
     meta = {
       description = "Self-hosted web app for Wealthfolio";

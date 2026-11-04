@@ -35,6 +35,7 @@
   pyyaml,
   rpmfile,
   striprtf,
+  tabulate,
   tqdm,
   versionCheckHook,
   whatthepatch,
@@ -44,16 +45,15 @@
 
 buildPythonPackage (finalAttrs: {
   pname = "credsweeper";
-  version = "1.18.3";
+  version = "1.19.5";
   pyproject = true;
-
   __structuredAttrs = true;
 
   src = fetchFromGitHub {
     owner = "Samsung";
     repo = "CredSweeper";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-3PE/tf8GjDY6yakMuWCTcCVZMobiEx/o/QJQdJai4JY=";
+    hash = "sha256-QtParvUCqFOhEnXaWZcHZ6peF6Mrcli4epAuRZCCFZ8=";
   };
 
   build-system = [ hatchling ];
@@ -98,6 +98,7 @@ buildPythonPackage (finalAttrs: {
     hypothesis
     psutil
     pytestCheckHook
+    tabulate
     versionCheckHook
   ];
 
@@ -115,6 +116,9 @@ buildPythonPackage (finalAttrs: {
     "test_match_n"
     "test_multi_jobs_p"
     "test_rules_ml_p"
+
+    # Hang indefinitely on some CPUs
+    "TestInt"
   ]
   ++ lib.optionals (stdenv.hostPlatform.isLinux && stdenv.hostPlatform.isAarch64) [
     # aarch64-linux fails cpuinfo test, because /sys/devices/system/cpu/ does not exist in the sandbox:
@@ -126,6 +130,7 @@ buildPythonPackage (finalAttrs: {
     "test_it_works_n"
     "test_log_n"
     "test_log_p"
+    "test_sqlite_injection_n"
   ];
 
   meta = {

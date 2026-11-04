@@ -9,16 +9,16 @@
 
 buildNpmPackage (finalAttrs: {
   pname = "nest-cli";
-  version = "12.0.0";
+  version = "12.0.11";
 
   src = fetchFromGitHub {
     owner = "nestjs";
     repo = "nest-cli";
     tag = finalAttrs.version;
-    hash = "sha256-jMdqq1vQAN9ftOIycldiRkGFqzuJha7rp/KtSmdruEQ=";
+    hash = "sha256-uasvd5yDT543xbtqmaKAYhDMosOjT8NX/+2Wj4z9lgY=";
   };
 
-  npmDepsHash = "sha256-g7f4cNfYMD7v1bTeokYvAlupd9/v527Z8jLc4aUeqTE=";
+  npmDepsHash = "sha256-oa73vB0ADQXZZzXpV0FxqyNFaBlyXcTSb4eonmkCnk8=";
   npmFlags = [ "--legacy-peer-deps" ];
 
   env = {

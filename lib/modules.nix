@@ -1056,10 +1056,11 @@ let
       (
         res: opt:
         let
+          optOptions = opt.options;
           typeSet =
-            if res ? type && opt.options ? type then
+            if res ? type && optOptions ? type then
               let
-                mergedType = res.type.typeMerge opt.options.type.functor;
+                mergedType = res.type.typeMerge optOptions.type.functor;
               in
               if mergedType != null then
                 {
@@ -1071,23 +1072,24 @@ let
                   "The option `${showOption loc}' in `${opt._file}' is already declared in ${showFiles res.declarations}."
             else
               { };
-
-          bothHave = k: res ? ${k} && opt.options ? ${k};
+          getSubModules = optOptions.type.getSubModules or null;
+          submodules =
+            if getSubModules != null then
+              map (setDefaultModuleLocation opt._file) getSubModules ++ res.options
+            else
+              res.options;
         in
-        if bothHave "default" || bothHave "example" || bothHave "description" || bothHave "apply" then
+        if
+          (res ? default && optOptions ? default)
+          || (res ? example && optOptions ? example)
+          || (res ? description && optOptions ? description)
+          || (res ? apply && optOptions ? apply)
+        then
           # Keep in sync with the same error above!
           throw
             "The option `${showOption loc}' in `${opt._file}' is already declared in ${showFiles res.declarations}."
         else
-          let
-            getSubModules = opt.options.type.getSubModules or null;
-            submodules =
-              if getSubModules != null then
-                map (setDefaultModuleLocation opt._file) getSubModules ++ res.options
-              else
-                res.options;
-          in
-          opt.options
+          optOptions
           // res
           // {
             declarations = res.declarations ++ [ opt._file ];
@@ -1595,17 +1597,76 @@ let
   */
   mkDefinition = args@{ file, value, ... }: args // { _type = "definition"; };
 
+  /**
+    Labels a definition with a priority.
+    See the documentation of `filterOverrides` for the interpretation of the priority value.
+    Nesting this function usually leads to an invalid definition.
+    `mkDefault`, `mkOptionDefault`, and `mkForce` partially apply `mkOverride` with common priorities used in the NixOS module system.
+
+    # Inputs
+
+    `priority`
+
+    : A numeric value representing the precedence.
+      See the documentation of `filterOverrides` for the interpretation of this value.
+
+    `content`
+
+    : The definition to be labeled with a given priority.
+
+    # Examples
+    :::{.example}
+    ## `lib.modules.mkOverride` usage example
+
+    ```nix
+    mkOverride 1000 "hello, world!"
+    => { _type = "override"; content = "hello, world!"; priority = 1000; }
+    ```
+
+    ```nix
+    (lib.evalModules {
+      modules = [
+        { options.foo = lib.mkOption { }; }
+        { config.foo = lib.mkOverride 20 1; }
+        { config.foo = lib.mkOverride 10 2; }
+      ];
+    }).config
+    => { foo = 2; }
+    ```
+    :::
+  */
   mkOverride = priority: content: {
     _type = "override";
     inherit priority content;
   };
 
-  mkOptionDefault = mkOverride 1500; # priority of option defaults
-  mkDefault = mkOverride 1000; # used in config sections of non-user modules to set a default
+  /**
+    Labels a definition with the priority of option declaration defaults.
+  */
+  mkOptionDefault = mkOverride 1500;
+
+  /**
+    Labels a definition with the priority used in config sections of non-user modules to set a default.
+  */
+  mkDefault = mkOverride 1000;
+
   defaultOverridePriority = 100;
-  mkImageMediaOverride = mkOverride 60; # image media profiles can be derived by inclusion into host config, hence needing to override host config, but do allow user to mkForce
+
+  /**
+    Labels a definition with the priority used in image media profiles.
+    Image media profiles can be derived by inclusion into host config, hence needing to override host config, but do allow users to `mkForce`.
+  */
+  mkImageMediaOverride = mkOverride 60;
+
+  /**
+    Labels a definition with a high priority (low value).
+  */
   mkForce = mkOverride 50;
-  mkVMOverride = mkOverride 10; # used by ‘nixos-rebuild build-vm’
+
+  /**
+    Labels a definition with used by {command}`nixos-rebuild build-vm`.
+  */
+  mkVMOverride = mkOverride 10;
 
   mkFixStrictness = warn "lib.mkFixStrictness has no effect and will be removed. It returns its argument unmodified, so you can just remove any calls." id;
 
@@ -1635,6 +1696,78 @@ let
         f def
     else
       f def;
+
+  /**
+    Consume the `options` metadata of the submodules typed by `attrsOf submodule`.
+
+    It also works with `lazyAttrsOf` and `attrsWith`.
+
+    # Inputs
+
+    1. A function that takes `name: { cfg, opt }:` and returns anything.
+       `name` is the attribute name at the level of `attrsOf`.
+       `cfg` is the corresponding option *value*, as typically found in `config`.
+       `opt` is the corresponding evaluated option, as typically found in `options`.
+
+    2. An `options` attribute value, e.g. `options.users.groups`.
+
+    # Output
+
+    An attribute set whose attribute names correspond to the definitions of the
+    option, and whose values are the return value of the passed function.
+
+    # Type
+
+    ```
+    mapAttrsOfSubmodule :: (String -> { cfg :: AttrSet, opt :: AttrSet } -> a) -> Option -> AttrSetOf a
+    ```
+
+    `Option` refers to an evaluated option,
+    retrievable from the `options` module argument
+    or the `options` configuration attribute returned by `evalModules`.
+    It carries attribute `_type = "option";`.
+
+    # Example
+
+    :::{.example}
+    ## Use `mapAttrsOfSubmodule` to distinguish which NixOS system services are explicitly enabled or disabled
+    ```nix
+    lib.modules.mapAttrsOfSubmodule
+      (name: { cfg, opt }:
+        {
+          isExplicit = opt.enable.highestPrio < (lib.mkOptionDefault null).priority;
+          value = cfg.enable;
+        })
+      (pkgs.nixos { }).options.systemd.services
+    =>
+    {
+      console-getty = {
+        isExplicit = true;
+        value = false;
+      };
+      "container-getty@" = {
+        isExplicit = false;
+        value = true;
+      };
+      # ...
+    }
+    ```
+
+    :::
+  */
+  mapAttrsOfSubmodule =
+    f: opt:
+    assert opt._type or null == "option";
+    assert opt.type.name == "attrsOf" || opt.type.name == "lazyAttrsOf";
+    assert opt.type.nestedTypes.elemType.name == "submodule";
+
+    mapAttrs (
+      name: attrMeta:
+      f name {
+        cfg = attrMeta.configuration.config;
+        opt = attrMeta.configuration.options;
+      }
+    ) opt.valueMeta.attrs;
 
   mkBefore = mkOrder 500;
   defaultOrderPriority = 1000;
@@ -2340,6 +2473,7 @@ private
     importApply
     importJSON
     importTOML
+    mapAttrsOfSubmodule
     mapDefinitionValue
     mergeDefinitions
     mergeAttrDefinitionsWithPrio

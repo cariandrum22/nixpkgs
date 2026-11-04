@@ -12,16 +12,16 @@ let
     }:
     rustPlatform.buildRustPackage rec {
       pname = name;
-      version = "1.1.0";
+      version = "1.4.1";
 
       src = fetchFromGitHub {
         owner = "n0-computer";
         repo = "iroh";
         rev = "v${version}";
-        hash = "sha256-inEGT8MuNRlXwrFiQpFPybSOF+GkIJxMp2nv81xHhBI=";
+        hash = "sha256-9DuN44SKqVePErWDJ3ELwgwvDbVkKG6wZTFNsipCaVA=";
       };
 
-      cargoHash = "sha256-/1G+Rv/iNBkJL7NEioqozBoCUqYGPcSfhVCCTj8qfL8=";
+      cargoHash = "sha256-j6+ewPmutDpxm1ESjvMu2l61ijmbla2W/n/tqJcGQJU=";
 
       buildFeatures = cargoFeatures;
       cargoBuildFlags = [
@@ -39,10 +39,12 @@ let
       meta = {
         description = "Efficient IPFS for the whole world right now";
         homepage = "https://iroh.computer";
-        license = with lib.licenses; [
-          asl20
-          mit
-        ];
+        license =
+          with lib.licenses;
+          OR [
+            asl20
+            mit
+          ];
         maintainers = with lib.maintainers; [
           andreashgk
         ];

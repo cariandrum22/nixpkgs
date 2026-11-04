@@ -81,23 +81,25 @@ python3Packages.buildPythonApplication {
     mcp
   ];
 
-  strictDeps = true;
-
   postInstallCheck = ''
     mesonCheckPhase
   '';
 
   dontWrapGApps = true;
 
+  preFixup = ''
+    makeWrapperArgs+=("''${gappsWrapperArgs[@]}")
+  '';
+
   makeWrapperArgs = [
-    "\${gappsWrapperArgs[@]}"
-    "--prefix PATH : ${
-      lib.makeBinPath [
-        lsb-release
-        bash
-        ffmpeg
-      ]
-    }"
+    "--prefix"
+    "PATH"
+    ":"
+    (lib.makeBinPath [
+      lsb-release
+      bash
+      ffmpeg
+    ])
   ];
 
   passthru.updateScript = nix-update-script { };

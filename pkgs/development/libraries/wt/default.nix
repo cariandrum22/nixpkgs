@@ -87,7 +87,7 @@ let
 in
 {
   wt4 = generic {
-    version = "4.14.2";
-    hash = "sha256-No8Gk04g6Kcb18uMqZeLVfE47ri+k4ff0CB7j174G5I=";
+    version = "4.14.4";
+    hash = "sha256-Hx3Sc6m+diFjyc+j+lJAOKsT9q3PzbyUE36k7G95Iy8=";
   };
 }

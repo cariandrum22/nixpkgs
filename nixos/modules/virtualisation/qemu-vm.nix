@@ -333,11 +333,11 @@ let
         lib.mapAttrsToList (tag: share: ''
           ${lib.getExe hostPkgs.virtiofsd} \
             --socket-path="$NIX_VIRTIOFS_DIR"/"${tag}" \
-            --shared-dir="${share.source}" \
+            --shared-dir="$(readlink -f "${share.source}")" \
             ${if share.writable then "--writeback" else "--readonly"} \
             --sandbox=none \
             --seccomp=none \
-            --cache=always \
+            --cache=${share.cache} \
             --no-announce-submounts \
             --translate-uid=host:65534:0:1 \
             --translate-gid=host:65534:0:1 \
@@ -364,7 +364,17 @@ let
         "$@"
   '';
 
-  regInfo = hostPkgs.closureInfo { rootPaths = config.virtualisation.additionalPaths; };
+  inherit
+    (import ../../lib/store-registration-info.nix {
+      inherit hostPkgs;
+      rootPaths = config.virtualisation.additionalPaths;
+    })
+    regInfo
+    regInfoPath
+    ;
+  regInfoParam = optionalString (
+    cfg.useNixStoreImage || cfg.mountHostNixStore
+  ) " regInfo=${regInfoPath}";
 
   # Use well-defined and persistent filesystem labels to identify block devices.
   rootFilesystemLabel = "nixos";
@@ -585,6 +595,23 @@ in
           options.writable = lib.mkEnableOption "" // {
             description = "Whether the directory is writable on the host and guest.";
           };
+          options.cache = mkOption {
+            type = types.enum [
+              "auto"
+              "always"
+              "metadata"
+              "never"
+            ];
+            default = "auto";
+            description = ''
+              Cache policy for the virtiofs daemon.
+
+              For details refer to the [virtiofsd documentation](https://virtio-fs.gitlab.io/virtiofsd/doc/virtiofsd/passthrough/enum.CachePolicy.html).
+
+              Effective on Linux hosts only.
+              Ignored when using VirtFS (9P) (the default on non-Linux hosts).
+            '';
+          };
         }
       );
       default = { };
@@ -741,7 +768,12 @@ in
     };
 
     virtualisation.qemu = {
-      enableSharedMemory = mkEnableOption "shared memory";
+      enableSharedMemory = mkOption {
+        type = types.bool;
+        default = useVirtiofs; # Need shared memory for virtiofs: <https://www.qemu.org/docs/master/system/devices/virtio/vhost-user.html#shared-memory-object>
+        defaultText = lib.literalExpression "hostPkgs.stdenv.hostPlatform.isLinux";
+        description = "Enable shared memory";
+      };
 
       package = mkOption {
         type = types.package;
@@ -1223,6 +1255,7 @@ in
         # Always mount this to /nix/.ro-store because we never want to actually
         # write to the host Nix Store.
         target = "/nix/.ro-store";
+        cache = mkIf useVirtiofs "always";
       };
       xchg = {
         source = ''"$TMPDIR"/xchg'';
@@ -1309,7 +1342,7 @@ in
         mkIf cfg.directBoot.enable [
           "-kernel \${NIXPKGS_QEMU_KERNEL_${sanitizeShellIdent config.system.name}:-${config.system.build.toplevel}/kernel}"
           "-initrd ${cfg.directBoot.initrd}"
-          ''-append "$(cat ${config.system.build.toplevel}/kernel-params) init=${config.system.build.toplevel}/init regInfo=${regInfo}/registration ${consoles} $QEMU_KERNEL_PARAMS"''
+          ''-append "$(cat ${config.system.build.toplevel}/kernel-params) init=${config.system.build.toplevel}/init${regInfoParam} ${consoles} $QEMU_KERNEL_PARAMS"''
         ]
       )
       (mkIf cfg.useEFIBoot [

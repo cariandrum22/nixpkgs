@@ -7,15 +7,19 @@
 
 python3Packages.buildPythonApplication (finalAttrs: {
   pname = "legendary-gl"; # Name in pypi
-  version = "0.21.0";
+  version = "0.21.1";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "legendary-gl";
     repo = "legendary";
     tag = finalAttrs.version;
-    hash = "sha256-k5zVjXibYWS0F1by1uNOynuun9WfU0WuK3ResqsG7I0=";
+    hash = "sha256-BGLwnkYkaaIV9d4xauor4G/vDMTjyrR0c1f/LKPy0sg=";
   };
+
+  postPatch = ''
+    substituteInPlace pyproject.toml --replace-fail "uv_build>=0.11.4,<0.12" "uv-build"
+  '';
 
   build-system = with python3Packages; [
     uv-build

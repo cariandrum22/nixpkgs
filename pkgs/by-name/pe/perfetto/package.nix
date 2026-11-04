@@ -1,11 +1,15 @@
 {
   lib,
   stdenv,
+  buildPackages,
   cctools,
   cmake,
+  expat,
   fetchFromGitHub,
   fetchpatch2,
   gn,
+  linenoise,
+  musl-fts,
   ninja,
   nix-update-script,
   pkg-config,
@@ -22,14 +26,21 @@
 
 let
   inherit (stdenv.hostPlatform) isStatic isDarwin extensions;
+  isCross = !stdenv.buildPlatform.canExecute stdenv.hostPlatform;
   libName = "libperfetto${if isStatic then ".a" else extensions.sharedLibrary}";
 
-  buildInputs = [
+  # Required for both the SDK and tools output:
+  sdkPropagatedBuildInputs = [
     protobuf
     re2
-    sqlite
     zlib
     zstd
+  ];
+  # Required for tools output only:
+  toolsInputs = [
+    expat
+    linenoise
+    sqlite
   ];
 
   # pkg-config module name -> perfetto_use_system_* GN arg suffix
@@ -42,9 +53,20 @@ let
           drv.pname
       }";
       value = drv.pname;
-    }) buildInputs
+    }) sdkPropagatedBuildInputs
   );
   systemModules = toString (lib.attrNames systemLibs);
+
+  executablesToInstall = [
+    "perfetto"
+    "traced_probes"
+    "traced"
+  ];
+  toolsToInstall = [
+    "trace_processor_shell"
+    "tracebox"
+    "traceconv"
+  ];
 
   # Serialize Nix values into GN values, cf.
   # https://gn.googlesource.com/gn/+/main/docs/language.md
@@ -61,6 +83,7 @@ let
   toGnFlags = lib.mapAttrsToList (name: value: "${name}=${toGnValue value}");
 
   commonGnFlags = {
+    extra_cxxflags = "-std=c++20";
     is_debug = false;
     is_system_compiler = true;
     is_clang = stdenv.cc.isClang;
@@ -72,7 +95,7 @@ let
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "perfetto";
-  version = "58.3";
+  version = "59.1";
 
   __structuredAttrs = true;
   strictDeps = true;
@@ -81,20 +104,16 @@ stdenv.mkDerivation (finalAttrs: {
     owner = "google";
     repo = "perfetto";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-73aE+qoHOkdD2Br3NmUE48BM6uE6uIBdug0+ZR2nn94=";
+    hash = "sha256-411TMDlo9nDbr4RHO772zDJMxHW+cqjw+58RsMplbY8=";
   };
 
-  patches = [
-    # TODO: remove once included in a next release
-    (fetchpatch2 {
-      url = "https://github.com/google/perfetto/commit/e698e3903870da0317511334ee21d3ae830ecd66.patch?full_index=1";
-      hash = "sha256-L3/xAz1dc3KDZLs7nt7F945ZuvexyWlA9x0YqRNjdIo=";
-    })
-    (fetchpatch2 {
-      url = "https://github.com/google/perfetto/commit/5739344741e4b881952a2786f67355eefe0a2c8d.patch?full_index=1";
-      hash = "sha256-AplecRNDDLGpbYC6zg2Ie0LrX+0MBxodTC72SP6SSl8=";
-    })
+  outputs = [
+    "out"
+    "tools"
   ];
+
+  patches = [ ];
+
   # Upstream includes its own tooling to download its deps, we have to disable it to make it use the ones from the PATH.
   postPatch = ''
     echo '#!/usr/bin/env python3' > tools/install-build-deps
@@ -102,7 +121,9 @@ stdenv.mkDerivation (finalAttrs: {
       --replace-fail "and sys_name == 'freebsd'" ""
 
     substituteInPlace gn/standalone/toolchain/BUILD.gn \
-      --replace-fail 'default_output_extension = ".so"' 'default_output_extension = "${extensions.sharedLibrary}"'
+      --replace-fail 'default_output_extension = ".so"' 'default_output_extension = "${
+        extensions.sharedLibrary or ".a"
+      }"'
   '';
 
   nativeBuildInputs = [
@@ -113,29 +134,75 @@ stdenv.mkDerivation (finalAttrs: {
     python3
     validatePkgConfig
   ]
+  ++ lib.optionals isCross (sdkPropagatedBuildInputs ++ toolsInputs)
   ++ lib.optional isDarwin cctools.libtool;
 
-  inherit buildInputs;
+  depsBuildBuild = [
+    buildPackages.stdenv.cc
+    pkg-config
+  ];
+
+  buildInputs =
+    sdkPropagatedBuildInputs ++ toolsInputs ++ lib.optional stdenv.hostPlatform.isMusl musl-fts;
+
+  env = lib.optionalAttrs stdenv.hostPlatform.isMusl {
+    NIX_LDFLAGS = "-lfts";
+  };
 
   gnFlags = toGnFlags (
     commonGnFlags
+    // (builtins.listToAttrs (
+      builtins.map (drv: {
+        name = "perfetto_use_system_${drv.pname}";
+        value = true;
+      }) toolsInputs
+    ))
+    // {
+      enable_perfetto_etm_importer = false;
+      enable_perfetto_llvm_demangle = false;
+      enable_perfetto_trace_processor_percentile = false;
+    }
     // (lib.optionalAttrs (!isStatic) {
       extra_ldflags = "-Wl,-rpath,${placeholder "out"}/lib";
     })
+    // (lib.optionalAttrs isCross (
+      let
+        prefix = stdenv.cc.targetPrefix;
+      in
+      {
+        target_os = if isDarwin then "mac" else "linux";
+        target_cpu =
+          {
+            aarch64 = "arm64";
+            armv7l = "arm";
+            i686 = "x86";
+            powerpc64le = "ppc64";
+            s390x = "s390x";
+            riscv64 = "riscv64";
+            x86_64 = "x64";
+          }
+          .${stdenv.hostPlatform.parsed.cpu.name};
+        target_triplet = stdenv.hostPlatform.config;
+        cc = "cc";
+        cxx = "c++";
+        ar = "ar";
+        target_cc = "${prefix}cc";
+        target_cxx = "${prefix}c++";
+        target_ar = "${prefix}ar";
+        target_strip = "${prefix}strip";
+        pkg_config = "${prefix}pkg-config";
+      }
+    ))
   );
 
-  ninjaFlags = [
-    "tracebox"
-    "traced"
-    "traced_probes"
-    "perfetto"
-  ];
+  ninjaFlags = executablesToInstall ++ toolsToInstall;
 
   dontUseNinjaInstall = true;
   installPhase = ''
     runHook preInstall
 
-    install -Dt $out/bin perfetto traced traced_probes tracebox
+    install -Dt $out/bin ${builtins.toString executablesToInstall}
+    install -Dt $tools/bin ${builtins.toString toolsToInstall}
     ${lib.optionalString (!isStatic) "install -Dt $out/lib ${libName}"}
 
     runHook postInstall
@@ -145,6 +212,15 @@ stdenv.mkDerivation (finalAttrs: {
     versionCheckHook
   ];
   doInstallCheck = true;
+  installCheckPhase = ''
+    runHook preInstallCheck
+
+    $tools/bin/trace_processor_shell \
+      -Q "select percentile(x, 50), median(x) from (select 1 x union all select 3)" /dev/null \
+    | grep -F '2.0'
+
+    runHook postInstallCheck
+  '';
 
   passthru = {
     updateScript = nix-update-script { };
@@ -159,7 +235,7 @@ stdenv.mkDerivation (finalAttrs: {
           postPatch
           nativeBuildInputs
           ;
-        propagatedBuildInputs = buildInputs;
+        propagatedBuildInputs = sdkPropagatedBuildInputs;
 
         __structuredAttrs = true;
         strictDeps = true;
@@ -350,7 +426,7 @@ stdenv.mkDerivation (finalAttrs: {
     changelog = "https://github.com/google/perfetto/releases/tag/v${finalAttrs.version}";
     license = lib.licenses.asl20;
     maintainers = with lib.maintainers; [ aduh95 ];
-    mainProgram = "perfetto";
+    mainProgram = lib.head executablesToInstall;
     platforms = lib.platforms.unix;
   };
 })

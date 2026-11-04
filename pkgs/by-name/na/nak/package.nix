@@ -3,23 +3,23 @@
   buildGoModule,
   fetchFromGitHub,
   pkg-config,
-  fuse,
+  fuse3,
   versionCheckHook,
   nix-update-script,
 }:
 
 buildGoModule (finalAttrs: {
   pname = "nak";
-  version = "0.20.6";
+  version = "0.21.2";
 
   src = fetchFromGitHub {
     owner = "fiatjaf";
     repo = "nak";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-RNKKkYc6PN/BbYqwUkRWg3o3lzQHg1NONvfqGxQ6t10=";
+    hash = "sha256-pX6D8PM1CZ7jzAm3WbkKZMCtr4FBubwMcy/i4gB3R00=";
   };
 
-  vendorHash = "sha256-J1prpdOX2wXfPOkJ/GYetW3Agz5pUeyAj4zBplz4xRw=";
+  vendorHash = "sha256-YDA8Xbb0bF9X4R1dJ53sfV+dwW4H0771FXAAkt/pxAo=";
 
   ldflags = [
     "-s"
@@ -32,8 +32,11 @@ buildGoModule (finalAttrs: {
   ];
 
   buildInputs = [
-    fuse
+    fuse3
   ];
+
+  tags = [ "fuse3" ];
+  env.CGO_CFLAGS = "-I${lib.getDev fuse3}/include/fuse3";
 
   # Integration tests fail (requires connection to relays)
   doCheck = false;

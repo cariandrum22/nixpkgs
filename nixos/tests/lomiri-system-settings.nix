@@ -29,7 +29,10 @@
         ubuntu-classic
       ];
 
-      services.printing.enable = true;
+      services.printing = {
+        enable = true;
+        cups-pdf.enable = true;
+      };
       services.upower.enable = true;
     };
 
@@ -93,7 +96,7 @@
         {
           name = "printing";
           type = "internal";
-          element = "no printers configured";
+          element = "Configured printers|no printers configured";
         }
         {
           name = "mouse";

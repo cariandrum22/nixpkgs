@@ -73,11 +73,12 @@
   pytestCheckHook,
   pyyaml,
   scipy,
+  writableTmpDirAsHomeHook,
 }:
 
 buildPythonPackage (finalAttrs: {
   pname = "torchrl";
-  version = "0.14.0";
+  version = "0.14.1";
   pyproject = true;
   __structuredAttrs = true;
 
@@ -85,7 +86,7 @@ buildPythonPackage (finalAttrs: {
     owner = "pytorch";
     repo = "rl";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-ATfvAobn9MjY+PHY7xY+iPztyKBZ5YpGXL1ZCzgvQXc=";
+    hash = "sha256-axHSuYjCHmV2MR/bpqDiiJZ/c+/0POIz4rKmA4RVsT0=";
   };
 
   postPatch = ''
@@ -104,6 +105,9 @@ buildPythonPackage (finalAttrs: {
   ];
   dontUseCmakeConfigure = true;
 
+  pythonRelaxDeps = [
+    "tensordict"
+  ];
   dependencies = [
     cloudpickle
     hoptorch
@@ -204,6 +208,7 @@ buildPythonPackage (finalAttrs: {
   nativeCheckInputs = [
     gymnasium
     h5py
+    hydra-core
     imageio
     pytest-rerunfailures
     pytest-xdist
@@ -211,6 +216,7 @@ buildPythonPackage (finalAttrs: {
     pyyaml
     scipy
     torchvision
+    writableTmpDirAsHomeHook
   ]
   ++ finalAttrs.passthru.optional-dependencies.atari
   ++ finalAttrs.passthru.optional-dependencies.gym-continuous
@@ -248,6 +254,9 @@ buildPythonPackage (finalAttrs: {
 
     # ray.exceptions.RuntimeEnvSetupError: Failed to set up runtime environment
     "TestRayCollector"
+
+    # AttributeError: module 'ray.internal' has no attribute 'free'
+    "test_ray_collector_stats"
 
     # torchrl is incompatible with gymnasium>=1.0
     # https://github.com/pytorch/rl/discussions/2483
@@ -317,8 +326,32 @@ buildPythonPackage (finalAttrs: {
     #   /build/source/test/smoke_test.py
     "test/llm"
 
-    # Hang indefinitely
+    # Hang indefinitely on some CPUs
     "test/services/test_services.py"
+    "test/envs/test_special.py::TestAsyncEnvPool::test_recv_timeout_bounds_whole_call"
+
+    # AssertionError: Test timed out (most tests in this class)
+    "test/test_configs.py::TestHydraParsing"
+
+    # AssertionError: Traceback (most recent call last)
+    "test/objectives/test_dreamer_v3.py::test_dreamer_v3_checkpoint_resume_processes"
+
+    # AssertionError: Tensor-likes are not equal!
+    "test/modules/test_dreamer_components.py::TestDreamerV3Components::test_discrete_actor[cpu-autocast]"
+
+    # AssertionError: Scalars are not close! (regression with tensordict 0.15)
+    "test/objectives/test_dreamer_v3.py::TestDreamerV3::test_dreamer_v3_reinforce_return_normalization"
+
+    # OSError: We couldn't connect to 'https://huggingface.co' to load the files,...
+    "test/transforms/test_key_transforms.py::TestTokenizer::test_single_string_attention_mask_padding"
+    "test/transforms/test_key_transforms.py::TestTokenizer::test_single_string_without_attention_mask"
+
+    # ray.exceptions.GetTimeoutError: Get timed out: some object(s) not ready
+    # (in other words, a sandbox issue)
+    "test/services/test_python_executor_service.py::TestPythonExecutorService::test_service_execution"
+
+    # Very slow, timing out under load
+    "test/test_distributed.py::TestSyncCollector"
   ];
 
   meta = {

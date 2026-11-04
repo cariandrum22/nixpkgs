@@ -85,6 +85,7 @@ python3Packages.buildPythonApplication (finalAttrs: {
     # Tests are hardware-dependent
     "test_jetson_cuda_runtime_contract"
     "test_jetson_cuda_offloaded_surgery_contract"
+    "test_policy_rejects_unknown_cpu_exclusion_gate"
   ]
   ++ lib.optionals (stdenv.hostPlatform.isLinux && stdenv.hostPlatform.isAarch64) [
     # aarch64-linux fails cpuinfo test, because /sys/devices/system/cpu/ does not exist in the sandbox:
@@ -103,5 +104,7 @@ python3Packages.buildPythonApplication (finalAttrs: {
     license = lib.licenses.agpl3Only;
     maintainers = with lib.maintainers; [ fab ];
     mainProgram = "obliteratus";
+    # currently broken on aarch64-linux and aarch64-darwin, see https://hydra.nixos.org/build/346387789
+    broken = stdenv.hostPlatform.isAarch64;
   };
 })

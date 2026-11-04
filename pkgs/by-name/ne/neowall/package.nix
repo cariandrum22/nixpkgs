@@ -18,13 +18,13 @@
 
 stdenv.mkDerivation (finalAttrs: {
   pname = "neowall";
-  version = "0.6.1";
+  version = "0.8.0";
 
   src = fetchFromGitHub {
     owner = "1ay1";
     repo = "neowall";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-JzLp6/mJrYRq28XAIccsOxrG/RTDfWIojmmp1oQmiwI=";
+    hash = "sha256-cQz/p1/s69ij4qWS0C7WSkLnqQKeLhAKZeG05XswFOc=";
   };
 
   nativeBuildInputs = [

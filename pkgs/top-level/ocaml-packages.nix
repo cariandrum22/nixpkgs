@@ -217,6 +217,12 @@ let
 
         capnp = callPackage ../development/ocaml-modules/capnp { };
 
+        capnp-rpc = callPackage ../development/ocaml-modules/capnp-rpc { };
+
+        capnp-rpc-net = callPackage ../development/ocaml-modules/capnp-rpc/net.nix { };
+
+        capnp-rpc-unix = callPackage ../development/ocaml-modules/capnp-rpc/unix.nix { };
+
         caqti = callPackage ../development/ocaml-modules/caqti { };
 
         caqti-async = callPackage ../development/ocaml-modules/caqti/async.nix { };
@@ -469,12 +475,7 @@ let
 
         dolmen_loop = callPackage ../development/ocaml-modules/dolmen/loop.nix { };
 
-        dolmen_lsp = callPackage ../development/ocaml-modules/dolmen/lsp.nix {
-          lsp = lsp.override {
-            jsonrpc = jsonrpc.override { yojson = yojson_2; };
-            ppx_yojson_conv_lib = ppx_yojson_conv_lib.override { yojson = yojson_2; };
-          };
-        };
+        dolmen_lsp = callPackage ../development/ocaml-modules/dolmen/lsp.nix { };
 
         dolmen_model = callPackage ../development/ocaml-modules/dolmen/model.nix { };
 
@@ -1053,6 +1054,8 @@ let
         junit_alcotest = callPackage ../development/ocaml-modules/junit/alcotest.nix { };
         junit_ounit = callPackage ../development/ocaml-modules/junit/ounit.nix { };
 
+        jws = callPackage ../development/ocaml-modules/jws { };
+
         jwto = callPackage ../development/ocaml-modules/jwto { };
 
         ### K ###
@@ -1141,11 +1144,7 @@ let
 
         linksem = callPackage ../development/ocaml-modules/linksem { };
 
-        linol = callPackage ../development/ocaml-modules/linol {
-          ppx_yojson_conv_lib = ppx_yojson_conv_lib.override {
-            yojson = yojson_2;
-          };
-        };
+        linol = callPackage ../development/ocaml-modules/linol { };
 
         linol-eio = callPackage ../development/ocaml-modules/linol/eio.nix { };
 
@@ -1823,6 +1822,8 @@ let
 
         ppx_deriving_encoding = callPackage ../development/ocaml-modules/ppx_deriving_encoding { };
 
+        ppx_deriving_hash = callPackage ../development/ocaml-modules/ppx_deriving_hash { };
+
         ppx_deriving_protobuf = callPackage ../development/ocaml-modules/ppx_deriving_protobuf { };
 
         ppx_deriving_qcheck = callPackage ../development/ocaml-modules/qcheck/ppx_deriving_qcheck.nix { };
@@ -1839,9 +1840,13 @@ let
 
         ppx_deriving_yojson = callPackage ../development/ocaml-modules/ppx_deriving_yojson { };
 
+        ppx_expect_nobase = callPackage ../development/ocaml-modules/ppx_expect_nobase { };
+
         ppx_gen_rec = callPackage ../development/ocaml-modules/ppx_gen_rec { };
 
         ppx_import = callPackage ../development/ocaml-modules/ppx_import { };
+
+        ppx_inline_test_nobase = callPackage ../development/ocaml-modules/ppx_inline_test_nobase { };
 
         ppx_irmin = callPackage ../development/ocaml-modules/irmin/ppx.nix { };
 
@@ -2203,6 +2208,8 @@ let
         tw = callPackage ../development/ocaml-modules/tw { };
 
         twt = callPackage ../development/ocaml-modules/twt { };
+
+        typegist = callPackage ../development/ocaml-modules/typegist { };
 
         type_eq = callPackage ../development/ocaml-modules/type_eq { };
 

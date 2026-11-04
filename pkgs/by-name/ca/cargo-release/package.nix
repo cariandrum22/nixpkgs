@@ -13,16 +13,16 @@
 
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "cargo-release";
-  version = "1.1.5";
+  version = "1.1.7";
 
   src = fetchFromGitHub {
     owner = "crate-ci";
     repo = "cargo-release";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-ukzR9VAbrvI+r01D7vCXeBouQeamCtEnKmBg8kKGRpg=";
+    hash = "sha256-mchPi5n+4Noykl2GUXNeLAKCMbxCU+mXBbk+bLav1rM=";
   };
 
-  cargoHash = "sha256-E+ZhFMfASA6rP4E/+hbZihe0Rzf7RRe3I+W+wj389bo=";
+  cargoHash = "sha256-c+cyxqkRNUZYSbd+w9fjgGgfHN1WWCbvYZidhOEGUds=";
 
   nativeBuildInputs = [
     pkg-config
@@ -56,10 +56,12 @@ rustPlatform.buildRustPackage (finalAttrs: {
     mainProgram = "cargo-release";
     homepage = "https://github.com/crate-ci/cargo-release";
     changelog = "https://github.com/crate-ci/cargo-release/blob/v${finalAttrs.version}/CHANGELOG.md";
-    license = with lib.licenses; [
-      asl20 # or
-      mit
-    ];
+    license =
+      with lib.licenses;
+      OR [
+        asl20
+        mit
+      ];
     maintainers = with lib.maintainers; [
       gerschtli
       progrm_jarvis

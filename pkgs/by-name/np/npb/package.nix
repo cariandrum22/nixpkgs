@@ -24,19 +24,18 @@ let
 in
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "npb";
-  version = "1.1.0";
+  version = "1.2.1";
 
   __structuredAttrs = true;
-  strictDeps = true;
 
   src = fetchFromGitHub {
     owner = "samestep";
     repo = "npb";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-CL8jRHuJtXFcSh+r8DBtSz9s5xZzU4jwlZygGHeBR6I=";
+    hash = "sha256-+Cnorizn6rAgNPY5QrPhfplAwcNU0LZbUhq+dCQj/PI=";
   };
 
-  cargoHash = "sha256-LxWhP6NM+lUsUf13x5troFx0k5QHDz2tHOs/3vLGY48=";
+  cargoHash = "sha256-AQ3EqL3NyikwW5ck8xhI7UV3arOZUEjmXFmkkT6WUGA=";
 
   nativeBuildInputs = lib.optional buildCanExecuteHost installShellFiles;
 

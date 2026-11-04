@@ -11,12 +11,12 @@
   yarnConfigHook,
 }:
 let
-  version = "5.6.1";
+  version = "5.7.0";
   src = fetchFromGitHub {
     owner = "suitenumerique";
     repo = "docs";
     tag = "v${version}";
-    hash = "sha256-4nTE7pjrheas/OdtHCLok8mw0ZhcDL1pL2VFekPgmdI=";
+    hash = "sha256-/kCrh5CUFcurXpK8trdlW2kI1JDoKeD7n40vjvG/v4E=";
   };
 
   mail-templates = stdenv.mkDerivation {
@@ -51,6 +51,14 @@ let
           };
         }
       );
+      mcp = self.mcp_1;
+      # mistralai's MCP integration (unused here) requires mcp>=2
+      mistralai = super.mistralai.overridePythonAttrs (old: {
+        disabledTestPaths = old.disabledTestPaths or [ ] ++ [
+          "src/mistralai/extra/tests/test_connectors_gateway.py"
+          "src/mistralai/extra/tests/test_mcp_streamable_http.py"
+        ];
+      });
     }
   );
 in

@@ -7,7 +7,7 @@
   installShellFiles,
   lib,
   libgpg-error,
-  lua5_4,
+  lua5_5,
   makeWrapper,
   nix,
   openssl,
@@ -19,18 +19,18 @@
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "lux-cli";
 
-  version = "0.43.5";
+  version = "0.53.1";
 
   src = fetchFromGitHub {
     owner = "lumen-oss";
     repo = "lux";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-Uo180nB7/7lcYeaOCcOODtWJaqf4eQeMPKHN2OIVP70=";
+    hash = "sha256-wCQyeaq3TJYehI8vlGS6wiXkNgH55QmGWo6vqiKgIxs=";
   };
 
   buildAndTestSubdir = "lux-cli";
 
-  cargoHash = "sha256-fQoKFzMhvwlEXLmJQGiarPp2gtAJjodjQK7DjnY7reM=";
+  cargoHash = "sha256-bluEoULzXPkInTRMrxdwQI/xK3pIXL0bEbBTZKvffLw=";
 
   nativeInstallCheckInputs = [
     versionCheckHook
@@ -49,7 +49,6 @@ rustPlatform.buildRustPackage (finalAttrs: {
     gnupg
     gpgme
     libgpg-error
-    lua5_4
     openssl
   ];
 
@@ -62,8 +61,12 @@ rustPlatform.buildRustPackage (finalAttrs: {
     "--lib" # Disable impure integration tests
   ];
 
+  checkInputs = [
+    lua5_5 # Test suite uses pkg-config to find Lua libs
+  ];
+
   nativeCheckInputs = [
-    lua5_4
+    lua5_5
     nix
   ];
 

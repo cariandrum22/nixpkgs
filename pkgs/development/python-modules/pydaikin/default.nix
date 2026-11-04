@@ -15,14 +15,14 @@
 
 buildPythonPackage (finalAttrs: {
   pname = "pydaikin";
-  version = "2.19.1";
+  version = "2.22.0";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "fredrike";
     repo = "pydaikin";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-NgU+H5oliNJedQnrqiLIgOHsMKrnk1obAs1p5s/Skkg=";
+    hash = "sha256-NMntDvAZlDg8F6TiSQd65mkBkz1CAHbBGdOvtJovdqA=";
   };
 
   __darwinAllowLocalNetworking = true;

@@ -2,13 +2,16 @@
   lib,
   stdenvNoCC,
   fetchFromGitHub,
-  python3Packages,
+  gftools,
   installFonts,
 }:
 
 stdenvNoCC.mkDerivation (finalAttrs: {
   pname = "jetbrains-mono";
   version = "2.304";
+
+  strictDeps = true;
+  __structuredAttrs = true;
 
   src = fetchFromGitHub {
     owner = "jetbrains";
@@ -20,7 +23,7 @@ stdenvNoCC.mkDerivation (finalAttrs: {
   env."PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION" = "python";
 
   nativeBuildInputs = [
-    python3Packages.gftools
+    gftools
     installFonts
   ];
 
@@ -43,7 +46,10 @@ stdenvNoCC.mkDerivation (finalAttrs: {
     homepage = "https://jetbrains.com/mono/";
     changelog = "https://github.com/JetBrains/JetBrainsMono/blob/v${finalAttrs.src.tag}/Changelog.md";
     license = lib.licenses.ofl;
-    maintainers = with lib.maintainers; [ vinnymeller ];
+    maintainers = with lib.maintainers; [
+      vinnymeller
+      yvnth
+    ];
     platforms = lib.platforms.all;
   };
 })

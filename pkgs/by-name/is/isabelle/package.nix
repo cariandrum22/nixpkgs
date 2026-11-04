@@ -1,6 +1,7 @@
 {
   lib,
   stdenv,
+  callPackage,
   fetchurl,
   fetchFromGitHub,
   gcc14Stdenv,
@@ -56,9 +57,9 @@ let
   vampire' =
     (vampire.override {
       stdenv = vampireStdenv;
-      z3' = null;
+      enableZ3 = false;
     }).overrideAttrs
-      (_: {
+      (old: {
         pname = "vampire-for-isabelle";
         version = "4.8";
 
@@ -75,9 +76,8 @@ let
           mv $out/bin/vampire_rel $out/bin/vampire
         '';
 
-        cmakeFlags = [
+        cmakeFlags = old.cmakeFlags ++ [
           (lib.cmakeFeature "CMAKE_BUILD_HOL" "On")
-          (lib.cmakeFeature "CMAKE_DISABLE_FIND_PACKAGE_Z3" "On")
         ];
       });
 
@@ -361,6 +361,7 @@ stdenv.mkDerivation (finalAttrs: {
   };
 
   passthru = {
+    tests.linter = callPackage ./tests/linter.nix { isabelle = finalAttrs.finalPackage; };
     vampire = vampire';
     polyml = polyml';
     cvc5 = cvc5';

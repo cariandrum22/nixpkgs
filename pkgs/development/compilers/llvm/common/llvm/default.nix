@@ -107,6 +107,15 @@ stdenv.mkDerivation (
             + lib.optionalString (lib.versionAtLeast release_version "21") ''
               cp -r ${monorepoSrc}/libc "$out"
             ''
+            + lib.optionalString (lib.versionAtLeast release_version "23" && enableManpages) ''
+              # utils/docs contains an internal tooling Python module llvm_sphinx needed for building docs
+              mkdir -p "$out/utils"
+              cp -r ${monorepoSrc}/utils/docs "$out/utils/docs"
+
+              # The docs are referring to a file from mlir/utils/
+              mkdir -p "$out/mlir"
+              cp -r ${monorepoSrc}/mlir/utils "$out/mlir/utils"
+            ''
           )
       else
         src;
@@ -263,6 +272,16 @@ stdenv.mkDerivation (
         # This patch is a backport of the target parsing changes in LLVM 23, which fixes the problem.
         # Hopefully, Apple does not change the version number scheme again any time soon.
         (getVersionFile "llvm/backport-darwin-triple-parsing.patch")
+      ]
+      ++ lib.optionals (lib.versionOlder release_version "22") [
+        # Needed to add arm64e.x1 support, as the enum name differs from the architecture name
+        (getVersionFile "llvm/llvm-textapi-separate-arch-name-enum-label.patch")
+      ]
+      ++ lib.optionals (lib.versionOlder release_version "23") [
+        # Needed to link with the macOS 27 sdk, as it has libraries linked for arm64e.x1
+        # a new arm64 subtype that gives more pointer authentication machinery.
+        # Vendored backport of the patch for LLVM 23
+        (getVersionFile "llvm/backport-minimal-arm64e_x1-support.patch")
       ];
 
     nativeBuildInputs = [
@@ -283,6 +302,7 @@ stdenv.mkDerivation (
     buildInputs = [
       libxml2
       libffi
+      python3 # for opt-viewer scripts
     ]
     ++ optional enablePFM libpfm; # exegesis
 
@@ -345,6 +365,11 @@ stdenv.mkDerivation (
           # going on here (TODO(@rrbutani)).
           lib.optionalString (stdenv.hostPlatform.isx86 && lib.versionOlder release_version "19") ''
             rm test/tools/dsymutil/ARM/obfuscated.test
+          ''
+        +
+          # Requires a version of `codesign` that supports signing bundles, which sigtool does not support.
+          lib.optionalString (lib.versionAtLeast release_version "23") ''
+            rm test/tools/dsymutil/codesign.test
           ''
       )
 

@@ -18,7 +18,7 @@
 
 buildPythonPackage (finalAttrs: {
   pname = "aiounifi";
-  version = "95";
+  version = "97";
   pyproject = true;
 
   disabled = pythonOlder "3.13";
@@ -27,7 +27,7 @@ buildPythonPackage (finalAttrs: {
     owner = "Kane610";
     repo = "aiounifi";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-fnD2y/eG+47o3c8MeCw67qq2/+WCcSmQzprrvenTdGY=";
+    hash = "sha256-dOY+Tps7l/9TybTOzff4DpaA1BvSMYAXDMCySDtX038=";
   };
 
   postPatch = ''
@@ -53,6 +53,8 @@ buildPythonPackage (finalAttrs: {
     pytestCheckHook
     trustme
   ];
+
+  __darwinAllowLocalNetworking = true;
 
   pythonImportsCheck = [ "aiounifi" ];
 

@@ -12,13 +12,13 @@
 }:
 
 let
-  version = "3.7.1";
+  version = "3.7.1-4";
 
   src = fetchFromGitHub {
     owner = "percona";
     repo = "percona-toolkit";
-    rev = "v${version}";
-    sha256 = "sha256-bdEc+vaWxEN5jzd1bcScBj1QV7Oz7Xn3XWeW6TvkE/E=";
+    tag = "v${version}";
+    hash = "sha256-5mdRkdRSXhqdhJ0+pgQD18DS30WyvY2h6oImO4Fhljs=";
 
     # needed for build script
     leaveDotGit = true;
@@ -29,7 +29,7 @@ let
       pname = "Percona-Toolkit go-bindings";
       inherit src version;
 
-      vendorHash = "sha256-+MToOAyY8UiNKWSMR4Mhw5foJPBoturoxWhX84tjfro=";
+      vendorHash = "sha256-LdUWZdoKVsYcL6DO0U18pHMmF4D+5PwMdlJf416H4hA=";
     }).goModules;
 in
 buildPerlPackage {
@@ -41,15 +41,17 @@ buildPerlPackage {
 
   nativeBuildInputs = [
     git
+    go
   ];
 
   buildInputs = [
     DBDmysql
-    go
     DBI
     IOSocketSSL
     TermReadKey
   ];
+
+  strictDeps = true;
 
   postPatch = ''
     cp -r --reflink=auto ${goDeps} vendor
@@ -61,6 +63,8 @@ buildPerlPackage {
   preBuild = ''
     export HOME=$TMPDIR
   '';
+
+  __structuredAttrs = true;
 
   meta = {
     description = "Collection of advanced command-line tools to perform a variety of MySQL and system tasks";

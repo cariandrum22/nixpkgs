@@ -8,15 +8,15 @@
 }:
 
 let
-  version = "7.1.320";
+  version = "8.0.10";
   srcs = {
     x86_64-linux = fetchurl {
       url = "https://github.com/aunetx/deezer-linux/releases/download/v${version}/deezer-desktop-${version}-x64.tar.xz";
-      hash = "sha256-qCi7Yi2phMtN4IWo8eR0SFIe90TpOk2jqJKj3URSeNQ=";
+      hash = "sha256-F6ntRk1BzRg3LVTw4cY753Z8udipet0jb5I3rMrK0Zk=";
     };
     aarch64-linux = fetchurl {
       url = "https://github.com/aunetx/deezer-linux/releases/download/v${version}/deezer-desktop-${version}-arm64.tar.xz";
-      hash = "sha256-xgpdmrM3+v9o0sKyYv09MxdD6xoTNff3hPgD+loyhNE=";
+      hash = "sha256-r9AVnFm6/SH/LuGmtn5N18VjthvNg5u1GhM4dL3pHDU=";
     };
   };
 

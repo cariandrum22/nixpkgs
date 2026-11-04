@@ -56,8 +56,14 @@
   enableFlight ? stdenv.buildPlatform == stdenv.hostPlatform,
   # Disable also on RiscV
   # configure: error: cannot determine number of significant virtual address bits
+  # On LoongArch64, tests fail with:
+  # /build/source/cpp/src/arrow/memory_pool_test.cc:249: Failure
+  # The difference between retained - retained0 and 0 is 98304, which exceeds 40000
   enableJemalloc ?
-    !stdenv.hostPlatform.isDarwin && !stdenv.hostPlatform.isAarch64 && !stdenv.hostPlatform.isRiscV64,
+    !stdenv.hostPlatform.isDarwin
+    && !stdenv.hostPlatform.isAarch64
+    && !stdenv.hostPlatform.isLoongArch64
+    && !stdenv.hostPlatform.isRiscV64,
   enableS3 ? true,
   # google-cloud-cpp fails to build on RiscV
   enableGcs ? !stdenv.hostPlatform.isRiscV64,
@@ -143,7 +149,7 @@ stdenv.mkDerivation (finalAttrs: {
 
       # apache-orc looks for things in caps
       LZ4_HOME = lz4;
-      PROTOBUF_HOME = protobuf;
+      PROTOBUF_HOME = protobuf.full;
       SNAPPY_HOME = snappy.dev;
       ZSTD_HOME = zstd.dev;
       ARROW_TEST_DATA = "${arrow-testing}/data";

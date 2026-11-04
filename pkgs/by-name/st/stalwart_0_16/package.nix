@@ -51,7 +51,7 @@ let
 in
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "stalwart" + (lib.optionalString stalwartEnterprise "-enterprise");
-  version = "0.16.20";
+  version = "0.16.27";
 
   __structuredAttrs = true;
 
@@ -59,10 +59,10 @@ rustPlatform.buildRustPackage (finalAttrs: {
     owner = "stalwartlabs";
     repo = "stalwart";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-BEWD6hxRJL5WkdRChWvx9Ubn8pSWW8Wy7fpa7oQxtGU=";
+    hash = "sha256-QaPhmiHFIFTdOai0+dfIZaXCctphYTm2h9lB2gcye5c=";
   };
 
-  cargoHash = "sha256-zGGJeMoEJOn/BtNUysuyuPeH3hHkJdrb9jUw6ZTpDgk=";
+  cargoHash = "sha256-imB0ItaQdHCJ5beJ0NOkl/8LdTF1Ocf6YPqSbjsn+Ps=";
 
   env = {
     # https://docs.rs/openssl/latest/openssl/#manual
@@ -299,12 +299,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
       lib.licenses.agpl3Only
     ]
     ++ lib.optionals stalwartEnterprise [
-      {
-        fullName = "Stalwart Enterprise License 2.0 (SELv2) Agreement";
-        url = "https://github.com/stalwartlabs/stalwart/blob/${finalAttrs.src.tag}/LICENSES/LicenseRef-SEL.txt";
-        free = false;
-        redistributable = false;
-      }
+      lib.licenses.stalwart
     ];
     maxSilent = 14400; # 4 hours
     mainProgram = "stalwart";

@@ -12,7 +12,7 @@
   libssh,
   openssl,
   tun2socks,
-  v2ray-rules-dat,
+  xray-rules-dat,
   runtimeShell,
   callPackage,
   nix-update-script,
@@ -22,13 +22,13 @@ let
   # Even minor updates can break VPN connections without failing the build.
   amneziawg-go-pinned = amneziawg-go.overrideAttrs (
     finalAttrs: _: {
-      version = "3.0.1";
+      version = "3.1.20260814";
 
       src = fetchFromGitHub {
         owner = "amnezia-vpn";
         repo = "amneziawg-go";
         tag = "v${finalAttrs.version}";
-        hash = "sha256-wtjUJSTDWWgJLedyQPlPa+TtOztciyDWIbyZ24N5ELM=";
+        hash = "sha256-HMmbKd1wYzotB+GAZ8GulyJmX7+XUnXOEerab0OCPO8=";
       };
 
       vendorHash = "sha256-Y2dCwlKMVLrkzDcNKyCPxFJwMbCA2mQKkakvzwbamCY=";
@@ -84,7 +84,7 @@ let
 in
 stdenv.mkDerivation (finalAttrs: {
   pname = "amnezia-vpn";
-  version = "5.0.0.5";
+  version = "5.0.3.0";
 
   __structuredAttrs = true;
 
@@ -92,7 +92,7 @@ stdenv.mkDerivation (finalAttrs: {
     owner = "amnezia-vpn";
     repo = "amnezia-client";
     tag = finalAttrs.version;
-    hash = "sha256-knQgGyNkOV9CX1I0hJ8xEMRENBV35E2DwWUOgby3iUo=";
+    hash = "sha256-ryKvEy4Oj6PP0WTs+XWqHSVInrVhP0tZcQqgs7gHOls=";
     fetchSubmodules = true;
     # Preserve VCS metadata needed by the build before .git is removed.
     postCheckout = ''
@@ -152,7 +152,7 @@ stdenv.mkDerivation (finalAttrs: {
 
     # Xray otherwise looks for geoip.dat and geosite.dat beside the service binary.
     substituteInPlace service/server/xray.cpp \
-      --replace-fail 'qDebug() << "Xray::startXray()";' $'qDebug() << "Xray::startXray()";\n    qputenv("XRAY_LOCATION_ASSET", QByteArrayLiteral("${v2ray-rules-dat}/share/v2ray"));'
+      --replace-fail 'qDebug() << "Xray::startXray()";' $'qDebug() << "Xray::startXray()";\n    qputenv("XRAY_LOCATION_ASSET", QByteArrayLiteral("${xray-rules-dat}/share/xray"));'
 
     # Link the Nix-built bindings directly instead of using a Conan package.
     substituteInPlace service/server/CMakeLists.txt \
@@ -203,6 +203,8 @@ stdenv.mkDerivation (finalAttrs: {
     export FREE_V2_ENDPOINT="${free-v2-endpoint}"
     export PREM_V1_ENDPOINT="${prem-v1-endpoint}"
   '';
+
+  cmakeFlags = [ "-DCLIENT_ENABLE_APP_UPDATES=0" ];
 
   installPhase = ''
     runHook preInstall

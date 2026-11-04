@@ -3,22 +3,23 @@
   stdenv,
   fetchFromGitHub,
   fetchPnpmDeps,
-  pnpm,
+  pnpm_11,
   pnpmConfigHook,
   nodejs,
   rustPlatform,
   protobuf,
   cacert,
-  tzdata,
   nix-update,
   nixosTests,
   writeShellApplication,
 }:
 
 let
+  pnpm = pnpm_11;
+
   console = stdenv.mkDerivation (finalAttrs: {
     pname = "rustfs-console";
-    version = "0.1.25";
+    version = "0.1.37";
     __structuredAttrs = true;
     __darwinAllowLocalNetworking = true;
 
@@ -26,13 +27,14 @@ let
       owner = "rustfs";
       repo = "console";
       tag = "v${finalAttrs.version}";
-      hash = "sha256-wPxexsOaZD+pmf1XldN8baa1f6tE0xj/B706m5uwlwc=";
+      hash = "sha256-yLzKLlZ/OZYGfrCcz1RdcXHQSu9h4FTEtzCOsvquK2U=";
     };
 
     pnpmDeps = fetchPnpmDeps {
       inherit (finalAttrs) pname version src;
+      inherit pnpm;
       fetcherVersion = 4;
-      hash = "sha256-wfaUMWTa8eFkzY/wCD5o7+G2OiSTWCqm+py3sgqDI04=";
+      hash = "sha256-tWeemxHBvWEWKECIAYzlw0MaKpkjXTTodj9Rgf8U28s=";
     };
 
     nativeBuildInputs = [
@@ -54,24 +56,22 @@ let
 in
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "rustfs";
-  version = "1.0.0-rc.5";
+  version = "1.0.4";
   __structuredAttrs = true;
 
   src = fetchFromGitHub {
     owner = "rustfs";
     repo = "rustfs";
     tag = finalAttrs.version;
-    hash = "sha256-Xb9Lv+8BvHF089D5YwTp7DOMosXc8bUYYEV5F7V2gxU=";
+    hash = "sha256-pgzDpqmGki/LC9w2m2VxOZD7RP0h/ZJ/bXVyIotAQhs=";
   };
 
   postPatch = ''
     rm -rf ./rustfs/static
     cp -rL ${finalAttrs.console} ./rustfs/static
-
-    substituteInPlace Cargo.toml --replace-fail "1.98.0" "1.97.0"
   '';
 
-  cargoHash = "sha256-+PnEy6Z/ynNjgsgQz98Q/kGuyQ2+FgnJbh6Mk1/tohg=";
+  cargoHash = "sha256-8CRM2FdAmpx6rL3FMMj1caSBaf+//lQu6uHxBa/DynU=";
 
   nativeBuildInputs = [
     protobuf
@@ -80,26 +80,13 @@ rustPlatform.buildRustPackage (finalAttrs: {
 
   inherit console;
 
-  env = {
-    RUSTFLAGS = "--cfg tokio_unstable";
-    # reqwest loads CA certs even if not used during tests
-    SSL_CERT_FILE = "${cacert}/etc/ssl/certs/ca-bundle.crt";
-    # jiff needs a time zone database to resolve zones like UTC during tests
-    TZDIR = "${tzdata}/share/zoneinfo";
-  };
+  env.RUSTFLAGS = "--cfg tokio_unstable";
 
   # Only build the main rustfs binary
   cargoBuildFlags = "-p rustfs";
 
-  useNextest = true;
-  cargoTestFlags = [
-    "--package"
-    "rustfs"
-    "--no-fail-fast"
-
-    "--filterset"
-    "not (test(connect::) or binary(connect_*) or test(=version::tests::test_is_head_newer_than_tag_requires_strict_descendant))"
-  ];
+  # they are to intensive on the resource usage, we are just relying on nixos vm test
+  doCheck = false;
 
   passthru = {
     tests = {
@@ -121,7 +108,10 @@ rustPlatform.buildRustPackage (finalAttrs: {
     homepage = "https://github.com/rustfs/rustfs";
     changelog = "https://github.com/rustfs/rustfs/releases/tag/${finalAttrs.version}";
     license = lib.licenses.asl20;
-    maintainers = with lib.maintainers; [ marcel ];
+    maintainers = with lib.maintainers; [
+      marcel
+      adamcstephens
+    ];
     mainProgram = "rustfs";
   };
 })

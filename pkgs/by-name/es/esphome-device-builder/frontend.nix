@@ -4,15 +4,17 @@
   nodejs,
   fetchPnpmDeps,
   pnpmConfigHook,
-  pnpm,
+  pnpm_11,
   pyprojectVersionPatchHook,
   setuptools,
   meta,
 }:
-
+let
+  pnpm = pnpm_11;
+in
 buildPythonPackage (finalAttrs: {
   pname = "esphome-device-builder-frontend";
-  version = "0.1.311";
+  version = "0.1.373";
   pyproject = true;
 
   __structuredAttrs = true;
@@ -21,14 +23,14 @@ buildPythonPackage (finalAttrs: {
     owner = "esphome";
     repo = "device-builder-frontend";
     tag = finalAttrs.version;
-    hash = "sha256-mCzWCoxm3yIgBhuEF9N3+5dk5PxKNcPhw0b2zQH9Hc0=";
+    hash = "sha256-vroab1H3RsznC6CLf3DirOa6kufp3gBwNVW0FoR8vH4=";
   };
 
   pnpmDeps = fetchPnpmDeps {
     inherit (finalAttrs) pname src;
     inherit pnpm;
     fetcherVersion = 4;
-    hash = "sha256-91LytgWi+vHmsZjorw9QM1mcZAEvAOJXNz2rarAE4Vc=";
+    hash = "sha256-3hLkPDFCxG55AuixG5AQhDJyyBEWPhBmNF1HdNo8Lfk=";
   };
 
   nativeBuildInputs = [

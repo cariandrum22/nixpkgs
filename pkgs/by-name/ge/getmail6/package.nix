@@ -2,26 +2,29 @@
   lib,
   python3,
   fetchFromGitHub,
+  versionCheckHook,
+  coreutils,
 }:
 
 python3.pkgs.buildPythonApplication (finalAttrs: {
   pname = "getmail6";
-  version = "6.20.01";
+  version = "6.21.00";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "getmail6";
     repo = "getmail6";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-U5/vOpVVuPc1ITn0SCr7bnDFUwSBqFr51dUsyiMbORM=";
+    hash = "sha256-W+DJ9gh68sZbmrDjFn1iHhcBrsW/MVQOiHRe4OCwYSY=";
   };
 
   build-system = with python3.pkgs; [
     setuptools
   ];
 
-  # needs a Docker setup
-  doCheck = false;
+  nativeInstallCheckInputs = [
+    versionCheckHook
+  ];
 
   pythonImportsCheck = [ "getmailcore" ];
 
@@ -30,13 +33,27 @@ python3.pkgs.buildPythonApplication (finalAttrs: {
     # documentation installation; too bad it is counterproductive now
     sed -e '/datadir or prefix,/d' -i setup.py
     sed -e 's,/usr/bin/getmail,$(dirname $0)/getmail,' -i getmails
+
+    substituteInPlace test/test_mock_servers.py \
+      --replace-fail '/bin/true' '${lib.getExe' coreutils "true"}'
   '';
+
+  nativeCheckInputs = with python3.pkgs; [
+    pytestCheckHook
+  ];
+
+  disabledTests = [
+    # incompatible with sandbox
+    "test_full_imap"
+    "test_imap_ssl_parameters"
+  ];
 
   meta = {
     description = "Program for retrieving mail";
     homepage = "https://getmail6.org";
     changelog = "https://github.com/getmail6/getmail6/blob/${finalAttrs.src.tag}/docs/CHANGELOG";
     license = lib.licenses.gpl2Plus;
+    mainProgram = "getmail";
     maintainers = with lib.maintainers; [
       abbe
       dotlambda

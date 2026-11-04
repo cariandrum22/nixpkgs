@@ -7,6 +7,11 @@
   autoPatchelfHook,
   wayland,
   libxkbcommon,
+  libx11,
+  libxcursor,
+  libxi,
+  libxrandr,
+  libxcb,
   libGL,
   stdenv,
   makeDesktopItem,
@@ -15,16 +20,16 @@
 
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "oklch-color-picker";
-  version = "2.3.4";
+  version = "2.4.3";
 
   src = fetchFromGitHub {
     owner = "eero-lehtinen";
     repo = "oklch-color-picker";
     tag = finalAttrs.version;
-    hash = "sha256-AdLpP01VeeAAOBEeX/dxLPdAqTfgH9X+NDCmFgqA3hs=";
+    hash = "sha256-ktgxOEg+Za9930bUjmapYR449q6f+bq+EpeKvjRVN8M=";
   };
 
-  cargoHash = "sha256-FB8zvWhO+ZbzWjkQCnf3ghgM+IL4px7QNO4dLPcczec=";
+  cargoHash = "sha256-EtPJ+TPQvpifIzYDgoyfw2yYFZ/USmCd1bh2//9r08c=";
 
   nativeBuildInputs = [
     copyDesktopItems
@@ -37,6 +42,11 @@ rustPlatform.buildRustPackage (finalAttrs: {
   ++ lib.optionals stdenv.hostPlatform.isLinux [
     wayland
     libxkbcommon
+    libx11
+    libxcursor
+    libxi
+    libxrandr
+    libxcb
   ];
 
   nativeInstallCheckInputs = [ versionCheckHook ];

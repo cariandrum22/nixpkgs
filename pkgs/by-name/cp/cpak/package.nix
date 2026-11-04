@@ -8,16 +8,16 @@
 
 buildGoModule (finalAttrs: {
   pname = "cpak";
-  version = "2.12.7";
+  version = "2.14.13";
 
   src = fetchFromGitHub {
     owner = "Containerpak";
     repo = "cpak";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-bISKyH1+Yr1EBzZYIK0xpe0jmBiWtCnByz4Ng01QJCI=";
+    hash = "sha256-y6KhfAld3ZuQs9QfTEDEdoZYUD78cYDpwXlhvmMSFZg=";
   };
 
-  vendorHash = "sha256-cgqb2AY06Ru+JJIK7vyaLSPyjJqiLvNytvSQCgDOASc=";
+  vendorHash = "sha256-+JB2fxN/EAABtzh1o+S/SOxpNa0VQ2LHEEg18Z6KtA8=";
 
   subPackages = [
     "."

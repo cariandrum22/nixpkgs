@@ -10,13 +10,14 @@
   wayland-protocols,
   libffi,
   libGL,
+  libpng,
+  libnotify,
   nix-update-script,
 }:
 
 stdenv.mkDerivation (finalAttrs: {
-
   pname = "miru";
-  version = "0.8.0";
+  version = "0.14.0";
 
   __structuredAttrs = true;
   strictDeps = true;
@@ -25,7 +26,7 @@ stdenv.mkDerivation (finalAttrs: {
     owner = "Vaishnav-Sabari-Girish";
     repo = "miru";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-pv4wFAUo7wwMPxTpjeXvxbD5fLOoX8606UKwmMgKYAk=";
+    hash = "sha256-EzNngxAiU+F1Ra0fKr1BmofIsmJKwhZzeZ4XtwzwVp8=";
   };
 
   nativeBuildInputs = [
@@ -40,6 +41,8 @@ stdenv.mkDerivation (finalAttrs: {
     wayland-protocols
     libffi
     libGL
+    libpng
+    libnotify
   ];
 
   passthru.updateScript = nix-update-script { };
@@ -49,7 +52,7 @@ stdenv.mkDerivation (finalAttrs: {
     homepage = "https://codeberg.org/Vaishnav-Sabari-Girish/miru";
     changelog = "https://codeberg.org/Vaishnav-Sabari-Girish/miru/releases/tag/v${finalAttrs.version}";
     license = lib.licenses.mit;
-    maintainers = [ ];
+    maintainers = with lib.maintainers; [ yvnth ];
     platforms = lib.platforms.linux;
     mainProgram = "miru-daemon";
   };

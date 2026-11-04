@@ -23,7 +23,7 @@
   dbus,
   cups,
   libexif,
-  systemd,
+  systemdLibs,
   libva,
   libGL,
   freetype,
@@ -66,7 +66,7 @@
 
 stdenv.mkDerivation rec {
   pname = "vivaldi";
-  version = "8.2.4133.52";
+  version = "8.2.4133.96";
 
   suffix =
     {
@@ -79,8 +79,8 @@ stdenv.mkDerivation rec {
     url = "https://downloads.vivaldi.com/stable/vivaldi-stable_${version}-1_${suffix}.deb";
     hash =
       {
-        aarch64-linux = "sha256-5v9DCL6B8JnZrFoniAFg5fpLD1ojOnT7HIt4HuQZJzI=";
-        x86_64-linux = "sha256-QOXpNQULSr7dR98o2AODBHMbvw/3NhqXlh1iB6i8rQM=";
+        aarch64-linux = "sha256-KiYHDdLwFqmUN1w/npAZ8Th+Yx3Ke+SBplB21q4NjAM=";
+        x86_64-linux = "sha256-b3WAVJrdD+IQ4Hs/5iiIBTNN71uvQ3CtciUDFPD0724=";
       }
       .${stdenv.hostPlatform.system} or (throw "Unsupported system: ${stdenv.hostPlatform.system}");
   };
@@ -102,7 +102,6 @@ stdenv.mkDerivation rec {
 
   buildInputs = [
     stdenv.cc.cc
-    stdenv.cc.libc
     zlib
     libx11
     libxt
@@ -130,7 +129,7 @@ stdenv.mkDerivation rec {
     gtk3
     gdk-pixbuf
     libexif
-    systemd
+    systemdLibs
     libva
     qt6.qtbase
     qt6.qtwayland

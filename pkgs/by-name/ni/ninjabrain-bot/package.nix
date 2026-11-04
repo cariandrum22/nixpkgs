@@ -46,7 +46,7 @@ maven.buildMavenPackage (finalAttrs: {
   };
 
   mvnParameters = "assembly:single";
-  mvnHash = "sha256-k/bhq3TyiG+PvUogBeFGpgx+vBFdkEge6UnmnVPUjjg=";
+  mvnHash = "sha256-Zkw9kHMe2VNyHW/X6Xy0qvlibKPTV7pArA5M1YgnVLA=";
 
   nativeBuildInputs = [
     makeWrapper
@@ -65,6 +65,7 @@ maven.buildMavenPackage (finalAttrs: {
     makeWrapperArgs=(
       --add-flags "-Dawt.useSystemAAFontSettings=on"
       --add-flags "-Dswing.aatext=true"
+      --add-flags "-Dswing.defaultlaf=javax.swing.plaf.metal.MetalLookAndFeel"
       --add-flags "-jar $out/share/java/ninjabrain-bot.jar"
     )
 

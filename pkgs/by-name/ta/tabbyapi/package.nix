@@ -7,24 +7,20 @@
 }:
 python3Packages.buildPythonApplication {
   pname = "tabbyapi";
-  version = "0-unstable-2026-09-07";
+  version = "0-unstable-2026-10-11";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "theroyallab";
     repo = "tabbyAPI";
-    rev = "92198cca1aa48f83121027f5b9058c24d7c2d894";
-    hash = "sha256-IQDsfTnIcaVmxk58Q8StEPS4O7LQwPVie6b04BWoeeQ=";
+    rev = "2636ef602b55b5343cf3740dd55a77f21e0a8003";
+    hash = "sha256-oQnM8aYLbqwdjJOQ2l3R8iyrv5tCZrMNRjy6rwQYQTI=";
   };
 
   build-system = with python3Packages; [
     packaging
     setuptools
     wheel
-  ];
-
-  nativeBuildInputs = with python3Packages; [
-    pythonRelaxDepsHook
   ];
 
   pythonRelaxDeps = [
@@ -53,7 +49,6 @@ python3Packages.buildPythonApplication {
       httptools
       pillow
       requests
-      numpy
       setuptools
 
       exllamav3
@@ -67,17 +62,6 @@ python3Packages.buildPythonApplication {
   '';
 
   optional-dependencies = with python3Packages; {
-    amd = [
-      pytorch-triton-rocm
-      torch
-    ];
-    cu118 = [
-      torch
-    ];
-    cu121 = [
-      flash-attn
-      torch
-    ];
     dev = [
       ruff
     ];
@@ -103,8 +87,8 @@ python3Packages.buildPythonApplication {
   '';
 
   passthru = {
-    cudaSupport = python3Packages.torch.cudaSupport;
-    updateScript = nix-update-script { };
+    inherit (python3Packages.torch) cudaSupport rocmSupport;
+    updateScript = nix-update-script { extraArgs = [ "--version=branch" ]; };
   };
 
   meta = {
