@@ -251,10 +251,10 @@ Historical validation of the 26.06 configuration on x86_64-linux:
 
 ## Migrating from earlier branches of this fork
 
-Use `github:cariandrum22/nixpkgs/vpp-26.10` as the flake input and commit
-`flake.lock` to pin the revision. This branch supersedes the published `vpp`
-(23.06), `vpp-25.10` and `vpp-26.02` branches. Its local development name was
-`vpp-26.10-integration`.
+Use `github:cariandrum22/nixpkgs/vpp-26.10-integration` as the flake input
+and commit `flake.lock` to pin the revision. If your input still references
+`vpp-26.10`, update its URL and refresh the lock file. The integration branch
+supersedes `vpp` (23.06), `vpp-25.10` and `vpp-26.02`.
 
 | Earlier name | Name to use in 26.10 |
 | --- | --- |
