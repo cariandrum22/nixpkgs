@@ -1,6 +1,7 @@
 {
   lib,
   fetchFromGitHub,
+  aws-lc,
   bchunk,
   cdrkit,
   ctrtool,
@@ -13,14 +14,16 @@
   p7zip,
   pkg-config,
   rustPlatform,
+  sqlite,
   versionCheckHook,
   wiimms-iso-tools,
   xdelta,
+  zstd,
 }:
 
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "oxyromon";
-  version = "0.24.0";
+  version = "0.25.0";
 
   __structuredAttrs = true;
   strictDeps = true;
@@ -29,7 +32,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
     owner = "alucryd";
     repo = "oxyromon";
     tag = finalAttrs.version;
-    hash = "sha256-xx3V+rwgvZdocTz6GU3mm3SlUJt2HNf2NNlIYO1J6zs=";
+    hash = "sha256-sxNtfaj6cZsxkKbeZoBL1hU0GZCPToODZNN+XjUhQtI=";
   };
 
   nativeBuildInputs = [
@@ -37,7 +40,13 @@ rustPlatform.buildRustPackage (finalAttrs: {
     pkg-config
   ];
 
-  cargoHash = "sha256-P86umWTojzUzGyuVEz7qtZw5BUI2WxJBYdIFF5kr03Q=";
+  buildInputs = [
+    aws-lc
+    sqlite
+    zstd
+  ];
+
+  cargoHash = "sha256-cSWsJUP2Zw0bS77+5//XxtpO+e0SIO+k266C53BBXJU=";
 
   # Requires internet access
   doCheck = false;

@@ -8,14 +8,14 @@
 
 buildPythonPackage (finalAttrs: {
   pname = "iamdata";
-  version = "0.1.202611031";
+  version = "0.1.202611221";
   pyproject = true;
 
   src = fetchFromGitHub {
-    owner = "cloud-copilot";
+    owner = "act-security-labs";
     repo = "iam-data-python";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-CmFFIqJ+gDpnm9taT+EUh74CfRTZLUgEYQcD8PQJDyA=";
+    hash = "sha256-MPjkcRAp23X9+bKf64J15jGgvzzq64F1EZu4FnK1WD0=";
   };
 
   __darwinAllowLocalNetworking = true;
@@ -30,8 +30,8 @@ buildPythonPackage (finalAttrs: {
 
   meta = {
     description = "Module for utilizing AWS IAM data for Services, Actions, Resources, and Condition Keys";
-    homepage = "https://github.com/cloud-copilot/iam-data-python";
-    changelog = "https://github.com/cloud-copilot/iam-data-python/releases/tag/${finalAttrs.src.tag}";
+    homepage = "https://github.com/act-security-labs/iam-data-python";
+    changelog = "https://github.com/act-security-labs/iam-data-python/releases/tag/${finalAttrs.src.tag}";
     license = lib.licenses.mit;
     maintainers = with lib.maintainers; [ fab ];
   };

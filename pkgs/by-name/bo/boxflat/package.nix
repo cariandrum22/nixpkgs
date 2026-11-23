@@ -14,14 +14,14 @@
 
 python3Packages.buildPythonPackage (finalAttrs: {
   pname = "boxflat";
-  version = "1.37.1";
+  version = "1.37.2";
   pyproject = true;
 
   src = fetchFromGitHub {
     owner = "Lawstorant";
     repo = "boxflat";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-509wOfzfbiMujaM8kaPHoWk8IhYlrgZnyom2PQpRqss=";
+    hash = "sha256-UDgW3Tpn5zVHVWRXmJnEYyiDE5H3IkDV+8MGb6Zg4as=";
   };
 
   build-system = [ python3Packages.setuptools ];
@@ -58,22 +58,13 @@ python3Packages.buildPythonPackage (finalAttrs: {
   ];
 
   preBuild = ''
-    substituteInPlace boxflat/app.py \
-      --replace-fail 'if udev_exists and rules_version >= 2:' 'if udev_exists:'
+    cp entrypoint.py boxflat/entrypoint.py
 
     cat > setup.py << EOF
     from setuptools import setup
 
     with open('requirements.txt') as f:
         install_requires = f.read().splitlines()
-
-    with open('entrypoint.py') as f:
-        content = f.read()
-
-    with open('boxflat/entrypoint.py', 'w') as f:
-        f.write("def main():\n")
-        for line in content.splitlines():
-            f.write("    " + line + "\n")
 
     setup(
       name='boxflat',

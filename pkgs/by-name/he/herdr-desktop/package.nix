@@ -13,10 +13,16 @@
   freetype,
   libxcb,
   libxkbcommon,
+  zstd,
   libGL,
   wayland,
   vulkan-loader,
   mesa,
+  makeFontsConf,
+  dejavu_fonts,
+  bash,
+  curl,
+  git,
   writableTmpDirAsHomeHook,
   xdg-utils,
   herdr-core,
@@ -34,7 +40,7 @@ let
 in
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "herdr-desktop";
-  version = "0.1.10";
+  version = "0.1.15";
 
   __structuredAttrs = true;
 
@@ -43,10 +49,10 @@ rustPlatform.buildRustPackage (finalAttrs: {
     repo = "herdr-app";
     tag = "v${finalAttrs.version}";
     fetchSubmodules = true;
-    hash = "sha256-ElraUWks2i8aJJhkbwpz43k6ttOV55NMPek344wgyZs=";
+    hash = "sha256-CNktD+tQrMMN4vpzFPZkZWnwDalaTkUV0A2UiLVeO3E=";
   };
 
-  cargoHash = "sha256-euxSTVGKqaFfJh9umqPeaDYej5ytFXgLECeL62V1SrY=";
+  cargoHash = "sha256-usCdairGam65XVKtb1jJpRC0tNXnoafAnMFQjPgvgqQ=";
 
   # zig.fetchDeps fails in the Darwin sandbox with CertificateBundleLoadFailure:
   # Zig reads its root certificates from the system keychains, which the
@@ -60,10 +66,10 @@ rustPlatform.buildRustPackage (finalAttrs: {
   };
 
   nativeBuildInputs = [
+    pkg-config
     rustPlatform.bindgenHook
   ]
   ++ lib.optionals stdenv.hostPlatform.isLinux [
-    pkg-config
     # ghostty-sys runs bindgen with clang's builtin headers when clang is on
     # PATH; otherwise it uses Zig's, and bindgen then finds no stdint.h.
     clang
@@ -72,7 +78,10 @@ rustPlatform.buildRustPackage (finalAttrs: {
   # Ghostty combines its static archives with Apple's `libtool -static`.
   ++ lib.optionals stdenv.hostPlatform.isDarwin [ cctools ];
 
-  buildInputs = lib.optionals stdenv.hostPlatform.isLinux [
+  buildInputs = [
+    zstd
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isLinux [
     fontconfig
     freetype
     libxcb
@@ -120,9 +129,13 @@ rustPlatform.buildRustPackage (finalAttrs: {
           '"Managed by nix: update it there."'
 
       # The tests use /var/tmp, which the sandbox lacks.
-      for f in src/{mod_files.rs,mods.rs,mods/lifecycle_tests.rs,mods/render_tests.rs,update_notes.rs}; do
+      for f in src/{mod_files.rs,mods.rs,mods/lifecycle_tests.rs,mods/render_tests.rs,update_notes.rs,window.rs}; do
         substituteInPlace "$f" --replace-fail /var/tmp "$TMPDIR"
       done
+
+      # The remote shell tests start /bin/bash, which the sandbox lacks.
+      substituteInPlace src/remote_shell.rs \
+        --replace-fail '"/bin/bash"' '"${lib.getExe bash}"'
     '';
 
   preBuild = ''
@@ -134,12 +147,24 @@ rustPlatform.buildRustPackage (finalAttrs: {
   # The render tests need Metal, which the sandbox does not provide.
   doCheck = !stdenv.hostPlatform.isDarwin;
 
-  # Some tests run programs in $HOME.
-  nativeCheckInputs = [ writableTmpDirAsHomeHook ];
+  nativeCheckInputs = [
+    # An updater test fetches from a local server with curl.
+    curl
+    # The folder watcher tests set up repositories with git.
+    git
+    # Some tests run programs in $HOME.
+    writableTmpDirAsHomeHook
+  ];
+
+  # Upstream tests debug builds: some tests read element bounds that GPUI
+  # records only with debug assertions on.
+  checkType = "debug";
 
   checkFlags = [
-    # Reads element bounds that only debug builds record.
-    "--skip=window::tests::fitted_popups_use_their_rendered_size_at_the_window_edge"
+    # Clears PATH to /usr/bin:/bin and runs /usr/bin/printf under an
+    # interactive /bin/sh; the sandbox has no /usr/bin, and its /bin/sh is
+    # BusyBox, which greets with a banner.
+    "--skip=remote_shell::tests::missing_shell_keeps_working_with_sh"
     # Races a thread against GPUI's test scheduler and fails now and then.
     "--skip=mods::lifecycle_tests::close_starts_native_work_before_releasing_the_copy"
     # Upstream's check that THIRD-PARTY-NOTICES matches the vendored sources;
@@ -152,6 +177,8 @@ rustPlatform.buildRustPackage (finalAttrs: {
   preCheck = lib.optionalString stdenv.hostPlatform.isLinux ''
     export VK_DRIVER_FILES=${mesa}/share/vulkan/icd.d/lvp_icd.${stdenv.hostPlatform.parsed.cpu.name}.json
     export LD_LIBRARY_PATH=${lib.makeLibraryPath dlopenLibs}
+    # The pixel tests also lay out text, and the sandbox has no fonts.
+    export FONTCONFIG_FILE=${makeFontsConf { fontDirectories = [ dejavu_fonts ]; }}
   '';
 
   desktopItems = lib.optionals stdenv.hostPlatform.isLinux [

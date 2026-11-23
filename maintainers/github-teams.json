@@ -431,6 +431,7 @@
       "karstx": 498906,
       "liamthexpl0rer": 119797945,
       "liberodark": 4238928,
+      "philocalyst": 114884788,
       "qubitnano": 146656568,
       "yvnth": 201552597
     },
@@ -498,6 +499,7 @@
       "kalbasit": 87115
     },
     "members": {
+      "GraysonTinker": 146041509,
       "mfrw": 4929861
     },
     "name": "golang"
@@ -1065,7 +1067,7 @@
     "name": "systemd"
   },
   "tenstorrent": {
-    "description": "Maintain Tenstorrent-related packages ",
+    "description": "Maintain Tenstorrent-related packages",
     "id": 19876744,
     "maintainers": {
       "RossComputerGuy": 19699320,

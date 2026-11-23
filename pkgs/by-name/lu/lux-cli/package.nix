@@ -6,6 +6,7 @@
   gpgme,
   installShellFiles,
   lib,
+  libgit2,
   libgpg-error,
   lua5_5,
   makeWrapper,
@@ -15,22 +16,23 @@
   pkg-config,
   rustPlatform,
   versionCheckHook,
+  zstd,
 }:
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "lux-cli";
 
-  version = "0.53.1";
+  version = "0.55.1";
 
   src = fetchFromGitHub {
     owner = "lumen-oss";
     repo = "lux";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-wCQyeaq3TJYehI8vlGS6wiXkNgH55QmGWo6vqiKgIxs=";
+    hash = "sha256-h0M1ihLgzACZL/nL2stZUUJ8qF8HMxxsEz1IIySQhjc=";
   };
 
   buildAndTestSubdir = "lux-cli";
 
-  cargoHash = "sha256-bluEoULzXPkInTRMrxdwQI/xK3pIXL0bEbBTZKvffLw=";
+  cargoHash = "sha256-DLsCtk6WyFNki3Fg6Ti44kjhbs4dtWqKp7cRyhd3hRo=";
 
   nativeInstallCheckInputs = [
     versionCheckHook
@@ -48,8 +50,10 @@ rustPlatform.buildRustPackage (finalAttrs: {
   buildInputs = [
     gnupg
     gpgme
+    libgit2
     libgpg-error
     openssl
+    zstd
   ];
 
   env = {

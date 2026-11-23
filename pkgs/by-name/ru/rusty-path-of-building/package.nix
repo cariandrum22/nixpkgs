@@ -12,22 +12,24 @@
   libxkbcommon,
   vulkan-loader,
   wayland,
+  aws-lc,
+  zstd,
   libxi,
   libxcursor,
   libx11,
 }:
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "rusty-path-of-building";
-  version = "0.3.3";
+  version = "0.3.4";
 
   src = fetchFromGitHub {
     owner = "meehl";
     repo = "rusty-path-of-building";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-hi3hNoD21d60wjY8H/T9bvBLNhpq2+r0q4EzVRhicpA=";
+    hash = "sha256-2FpiOX7JROAWbdPFwa1HaZxW+yMU8wM/Qu6ld3CDwHM=";
   };
 
-  cargoHash = "sha256-RbfiGQPQdgdZuoFxPDfbmCjPYBfaNqfZThyg6y0UnQM=";
+  cargoHash = "sha256-HvKvkwZyd7MQ81Ru9rl67F8zL4kW6O8QoupLk1KjjKg=";
 
   nativeBuildInputs = [
     pkg-config
@@ -40,6 +42,8 @@ rustPlatform.buildRustPackage (finalAttrs: {
     luajit
     openssl
     wayland
+    aws-lc
+    zstd
   ];
 
   postInstall = ''

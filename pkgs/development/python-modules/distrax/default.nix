@@ -1,6 +1,5 @@
 {
   lib,
-  stdenv,
   buildPythonPackage,
   fetchFromGitHub,
 
@@ -26,7 +25,6 @@ buildPythonPackage (finalAttrs: {
   pname = "distrax";
   version = "0.1.9";
   pyproject = true;
-  __structuredAttrs = true;
 
   src = fetchFromGitHub {
     owner = "google-deepmind";
@@ -69,8 +67,7 @@ buildPythonPackage (finalAttrs: {
     # Flaky: AssertionError: Not equal to tolerance
     "StraightThroughTest"
     "test_composite_methods_are_consistent__with_jit"
-  ]
-  ++ lib.optionals stdenv.hostPlatform.isAarch64 [
+
     # AssertionError: Not equal to tolerance (-inf vs. -36.7)
     "test_method_with_input_unnormalized_probs"
   ];

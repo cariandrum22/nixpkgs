@@ -26,15 +26,14 @@
 
 buildPythonPackage (finalAttrs: {
   pname = "pycrdt-websocket";
-  version = "0.16.6";
+  version = "0.16.9";
   pyproject = true;
-  __structuredAttrs = true;
 
   src = fetchFromGitHub {
     owner = "y-crdt";
     repo = "pycrdt-websocket";
     tag = finalAttrs.version;
-    hash = "sha256-k+0MuUhnKbzig8MrZmxHgTSuT3R4uh4DY+2CPmzf3bk=";
+    hash = "sha256-g0m6uwWY9QDGDkued1GAlskmwaLHAYB+66UsKl5AZFg=";
   };
 
   build-system = [ hatchling ];

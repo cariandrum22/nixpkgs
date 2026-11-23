@@ -3,6 +3,7 @@
   fetchFromGitHub,
   cacert,
   cmake,
+  git,
   pkg-config,
   makeWrapper,
   nasm,
@@ -10,24 +11,28 @@
   pipewire,
   libva,
   mesa,
+  zstd,
   lib,
   stdenv,
   nix-update-script,
 }:
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "concord-tui";
-  version = "2.6.4";
+  version = "2.7.0";
 
   src = fetchFromGitHub {
     owner = "chojs23";
     repo = "concord";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-RvxNXlwCF6ER4crGdAHpc7qFLGGyU92pmfgWVLuF/XM=";
+    hash = "sha256-Ck5BE1U5vajr0nE2KDeTfWZg1xBDbs0yCnpMZTIt/pU=";
   };
 
-  cargoHash = "sha256-wAG8il84ArySdlZnF66YiCP1DK5S1Pl39h1J0AQ48/I=";
+  cargoHash = "sha256-rupp7IH/90/QHwK4gmYPQDdlsNOwXGYiwL7ODEdUZDE=";
 
-  buildInputs = lib.optionals stdenv.hostPlatform.isLinux [
+  buildInputs = [
+    zstd
+  ]
+  ++ lib.optionals stdenv.hostPlatform.isLinux [
     alsa-lib
     pipewire
     libva
@@ -35,10 +40,11 @@ rustPlatform.buildRustPackage (finalAttrs: {
   ];
   nativeBuildInputs = [
     cmake
+    git
     pkg-config
+    rustPlatform.bindgenHook
   ]
   ++ lib.optionals stdenv.hostPlatform.isLinux [
-    rustPlatform.bindgenHook
     makeWrapper
   ]
   ++ lib.optionals stdenv.hostPlatform.isx86_64 [ nasm ];

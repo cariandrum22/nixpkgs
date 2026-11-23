@@ -91,7 +91,10 @@ buildPythonPackage rec {
   ++ pbs-installer.optional-dependencies.download
   ++ pbs-installer.optional-dependencies.install;
 
-  pythonRelaxDeps = [ "installer" ];
+  pythonRelaxDeps = [
+    "cachecontrol"
+    "installer"
+  ];
 
   postInstall = lib.optionalString (stdenv.buildPlatform.canExecute stdenv.hostPlatform) ''
     installShellCompletion --cmd poetry \
@@ -113,13 +116,13 @@ buildPythonPackage rec {
     ''
       export HOME=$TMPDIR
     ''
-    + lib.optionalString (stdenv.hostPlatform.isDarwin && stdenv.hostPlatform.isAarch64) ''
+    + lib.optionalString stdenv.hostPlatform.isDarwin ''
       # https://github.com/python/cpython/issues/74570#issuecomment-1093748531
       export no_proxy='*';
     ''
   );
 
-  postCheck = lib.optionalString (stdenv.hostPlatform.isDarwin && stdenv.hostPlatform.isAarch64) ''
+  postCheck = lib.optionalString stdenv.hostPlatform.isDarwin ''
     unset no_proxy
   '';
 

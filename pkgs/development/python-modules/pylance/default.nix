@@ -10,8 +10,11 @@
   pkg-config,
 
   # buildInputs
+  aws-lc,
   openssl,
   protobuf,
+  # for zstd
+  pkgsHostTarget,
 
   # dependencies
   lance-namespace,
@@ -37,15 +40,14 @@
 
 buildPythonPackage (finalAttrs: {
   pname = "pylance";
-  version = "14.0.2";
+  version = "14.0.3";
   pyproject = true;
-  __structuredAttrs = true;
 
   src = fetchFromGitHub {
-    owner = "lancedb";
+    owner = "lance-format";
     repo = "lance";
     tag = "v${finalAttrs.version}";
-    hash = "sha256-EGj0kF4x3+Oor1mD/E+QxgViCU7X8okX3cSOUNy7KD4=";
+    hash = "sha256-Eu6t12cvS6Xw7iM8WDapHJLl9DFF1oO/tvHs8rYTFrQ=";
   };
 
   sourceRoot = "${finalAttrs.src.name}/python";
@@ -57,7 +59,7 @@ buildPythonPackage (finalAttrs: {
       src
       sourceRoot
       ;
-    hash = "sha256-pfTNiy+5dAP/VB+kjv5IjtEFEWhR8lUK9L7mcze0dMA=";
+    hash = "sha256-SE95/5P/o81/sKPWoRDIbEzF2teJI/QFGa6Dn8ZH2AI=";
   };
 
   # `lance-linalg`'s AVX-512 VNNI u8-distance kernels call `_mm512_dpbusd_epi32` /
@@ -104,8 +106,10 @@ buildPythonPackage (finalAttrs: {
   ];
 
   buildInputs = [
+    aws-lc
     openssl
     protobuf
+    pkgsHostTarget.zstd
   ];
 
   pythonRelaxDeps = [
@@ -203,8 +207,8 @@ buildPythonPackage (finalAttrs: {
 
   meta = {
     description = "Python wrapper for Lance columnar format";
-    homepage = "https://github.com/lancedb/lance";
-    changelog = "https://github.com/lancedb/lance/releases/tag/${finalAttrs.src.tag}";
+    homepage = "https://github.com/lance-format/lance";
+    changelog = "https://github.com/lance-format/lance/releases/tag/${finalAttrs.src.tag}";
     license = lib.licenses.asl20;
     maintainers = with lib.maintainers; [ natsukium ];
   };

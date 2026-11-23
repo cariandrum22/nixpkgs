@@ -1,9 +1,14 @@
 {
   lib,
   buildPythonPackage,
-  fetchPypi,
+  fetchFromGitHub,
+  hatchling,
+  nix-update,
+  nix,
   rustPlatform,
   versionCheckHook,
+  writeShellApplication,
+  yq-go,
 
   # dependencies
   click,
@@ -19,20 +24,19 @@
 
 buildPythonPackage (finalAttrs: {
   pname = "zensical";
-  version = "0.0.72";
+  version = "0.1.2";
   pyproject = true;
 
-  # We fetch from PyPi, because GitHub repo does not contain all sources.
-  # The publish process also copies in assets from zensical/ui.
-  # We could combine sources, but then nix-update won't work.
-  src = fetchPypi {
-    inherit (finalAttrs) pname version;
-    hash = "sha256-KAH82Lrsbk0UraET4DpvtMbsLvolGNwK6U7lTtcclPE=";
+  src = fetchFromGitHub {
+    owner = "zensical";
+    repo = "zensical";
+    rev = "v${finalAttrs.version}";
+    hash = "sha256-UH9iuQUCUB6Y1N/p2/c+71PftgWgd/nJNypLkaxnhsg=";
   };
 
   cargoDeps = rustPlatform.fetchCargoVendor {
     inherit (finalAttrs) pname version src;
-    hash = "sha256-jedNaGBR3sjVt5CrNlTgDax0KmFnqJEgkMsBiGWHhPc=";
+    hash = "sha256-/cAzZFcv9pp3fC9vUZVqK2TMuCwzFWX1QxdqtTo3Yo8=";
   };
 
   nativeBuildInputs = with rustPlatform; [
@@ -40,7 +44,21 @@ buildPythonPackage (finalAttrs: {
     cargoSetupHook
   ];
 
+  ui = buildPythonPackage (finalAttrs: {
+    pname = "zensical-ui";
+    version = "0.0.42";
+    pyproject = true;
+    src = fetchFromGitHub {
+      owner = "zensical";
+      repo = "ui";
+      rev = "v${finalAttrs.version}";
+      hash = "sha256-FAdE3QH1WXAIQpt/yQ+d4lxxpNJdqemDqBcOcv5y3JA=";
+    };
+    build-system = [ hatchling ];
+  });
+
   dependencies = [
+    finalAttrs.ui
     click
     deepmerge
     jinja2
@@ -57,6 +75,21 @@ buildPythonPackage (finalAttrs: {
   nativeCheckInputs = [ versionCheckHook ];
   versionCheckProgramArg = "--version";
 
+  passthru.updateScript = lib.getExe (writeShellApplication {
+    name = "zensical-update";
+    runtimeInputs = [
+      nix
+      nix-update
+      yq-go
+    ];
+    text = ''
+      nix-update zensical
+      toml=$(nix-instantiate --eval -A zensical.src.outPath --json | yq -r)/pyproject.toml
+      version=$(yq -r '.project.dependencies[] | select(test("^zensical-ui==")) | sub("^zensical-ui=="; "")' "$toml")
+      nix-update zensical.ui --version "$version"
+    '';
+  });
+
   meta = {
     description = "Static site generator for documentation";
     longDescription = ''
@@ -69,7 +102,10 @@ buildPythonPackage (finalAttrs: {
     homepage = "https://zensical.org";
     changelog = "https://github.com/zensical/zensical/releases/tag/v${finalAttrs.version}";
     license = lib.licenses.mit;
-    maintainers = with lib.maintainers; [ aljazerzen ];
+    maintainers = with lib.maintainers; [
+      aljazerzen
+      zowoq
+    ];
     mainProgram = "zensical";
   };
 })

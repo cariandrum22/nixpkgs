@@ -17,6 +17,7 @@
   rustc,
   rustPlatform,
   stdenv,
+  sqlite,
   xcbuild,
 }:
 
@@ -26,13 +27,13 @@ let
 in
 buildNpmPackage (finalAttrs: {
   pname = "bitwarden-desktop";
-  version = "2026.10.0";
+  version = "2026.10.4";
 
   src = fetchFromGitHub {
     owner = "bitwarden";
     repo = "clients";
     tag = "desktop-v${finalAttrs.version}";
-    hash = "sha256-VCOX7j9XHxfYeKoIpRA9NCifm+PKfsnZzSpaA4F9bh4=";
+    hash = "sha256-SwUuUNhn1bOg9+xAA3UTxci+jcvGJdVsNwZI1doft4M=";
   };
 
   patches = [
@@ -73,7 +74,7 @@ buildNpmPackage (finalAttrs: {
 
   npmWorkspace = "apps/desktop";
   npmDepsFetcherVersion = 2;
-  npmDepsHash = "sha256-Ygom2n78W7voqar+i+l7dOjDIfrWMvR++oC8SiGOAS8=";
+  npmDepsHash = "sha256-PRa68CQEg734mHoqU42KMlopEQaADsd9LRwEaTzfQLY=";
 
   cargoDeps = rustPlatform.fetchCargoVendor {
     inherit (finalAttrs)
@@ -83,7 +84,7 @@ buildNpmPackage (finalAttrs: {
       cargoRoot
       patches
       ;
-    hash = "sha256-IYDZOIt0hT+8+CTfnq09PSpETmAUsiqlj7mMamcr5DY=";
+    hash = "sha256-q7fDejVEE5Q0rzGP6ATeljatuC9GWqX3yCx+As1TjmA=";
   };
   cargoRoot = "apps/desktop/desktop_native";
 
@@ -105,6 +106,10 @@ buildNpmPackage (finalAttrs: {
   ++ lib.optionals stdenv.hostPlatform.isDarwin [
     xcbuild
     darwin.autoSignDarwinBinariesHook
+  ];
+
+  buildInputs = [
+    sqlite
   ];
 
   preBuild = ''

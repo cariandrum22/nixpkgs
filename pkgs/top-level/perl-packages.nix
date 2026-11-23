@@ -1347,10 +1347,10 @@ with self;
 
   Apppapersway = buildPerlPackage rec {
     pname = "App-papersway";
-    version = "3.000";
+    version = "3.003";
     src = fetchurl {
       url = "mirror://cpan/authors/id/S/SP/SPWHITTON/App-papersway-${version}.tar.gz";
-      hash = "sha256-60H7zCtVbBfYOqVKw9X1EjOM7mzjSuPj5IwcDWhC+dE=";
+      hash = "sha256-NzfifKVXV5OQkisHlRkQjF3xNzaERzHuhLg0mA2oDzQ=";
     };
     buildInputs = [
       AnyEvent
@@ -7502,6 +7502,11 @@ with self;
       url = "mirror://cpan/authors/id/D/DA/DANAJ/Crypt-Random-TESHA2-0.01.tar.gz";
       hash = "sha256-oJErQsUr4XPaUo1VJ+QNlnMkvASseNn8LdyR/xb+ljM=";
     };
+    postInstall = ''
+      # The value should be '1.00' in the distribution as per the comment in Config.pm
+      # This also fixes reproducibility
+      sed -i 's/my $_entropy_per_byte =.*/my $_entropy_per_byte = 1.00;/' $(find $out -name Config.pm)
+    '';
     meta = {
       description = "Random numbers using timer/schedule entropy, aka userspace voodoo entropy";
       homepage = "https://github.com/danaj/Crypt-Random-TESHA2";
@@ -10145,9 +10150,6 @@ with self;
     ];
     propagatedBuildInputs = [ DBI ];
 
-    postBuild = lib.optionalString stdenv.hostPlatform.isDarwin ''
-      install_name_tool -add_rpath "${pkgs.oracle-instantclient.lib}/lib" blib/arch/auto/DBD/Oracle/Oracle.bundle
-    '';
     meta = {
       description = "Oracle database driver for the DBI module";
       license = with lib.licenses; [
@@ -14615,10 +14617,10 @@ with self;
 
   FinanceQuote = buildPerlPackage rec {
     pname = "Finance-Quote";
-    version = "1.71";
+    version = "1.72";
     src = fetchurl {
       url = "mirror://cpan/authors/id/B/BP/BPSCHUCK/Finance-Quote-${version}.tar.gz";
-      hash = "sha256-MRMP4BqIZmOQdZhfyplHjJPA1zvUEaaVZbDUeD+vX+8=";
+      hash = "sha256-3COsMzrF53R1YpeHV95Ei4VVxUFcdlwrHByTfMMqaIQ=";
     };
     buildInputs = [
       DateManip
@@ -15300,17 +15302,17 @@ with self;
 
   GlibObjectIntrospection = buildPerlPackage {
     pname = "Glib-Object-Introspection";
-    version = "0.051";
+    version = "0.052";
     src = fetchurl {
-      url = "mirror://cpan/authors/id/X/XA/XAOC/Glib-Object-Introspection-0.051.tar.gz";
-      hash = "sha256-ZWlhHcyArBSCx8IiZLGujJw1HUmDUR65psX0ehAVAIk=";
+      url = "mirror://cpan/authors/id/X/XA/XAOC/Glib-Object-Introspection-0.052.tar.gz";
+      hash = "sha256-VVtPEwiTm7MUHqRXCtEuBOJ8IzKcMCydyHJUCeEEkRE=";
     };
     patches = [
-      # Fix build with gobject-introspection 1.82
-      # https://gitlab.gnome.org/GNOME/perl-glib-object-introspection/-/issues/7
+      # Fix build with glib >=2.89.0
+      # https://gitlab.gnome.org/GNOME/perl-glib-object-introspection/-/work_items/8
       (fetchpatch {
-        url = "https://gitlab.gnome.org/GNOME/perl-glib-object-introspection/-/commit/e5adffecdc9b321d1f8d91777b190b8ae08f8dd0.patch";
-        hash = "sha256-/QAhKENSeP+QRoWx/v8EMFPOouZ36Qd78lhZpvInz7Q=";
+        url = "https://gitlab.gnome.org/GNOME/perl-glib-object-introspection/-/commit/22b1d2c8f3cdf9351f37791b27b36c139a145383.patch";
+        hash = "sha256-5ZFKCr09OZlTs5SFaAVGkj6r55QMMmcOp0tAEVi1PPw=";
       })
     ];
     nativeBuildInputs = [

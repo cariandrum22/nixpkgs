@@ -52,15 +52,14 @@
   buildPackages,
   pkgsBuildTarget,
   libxcrypt,
-  disableGdbPlugin ?
-    !enablePlugin
-    || (stdenv.targetPlatform.isAvr && stdenv.hostPlatform.isDarwin && stdenv.hostPlatform.isAarch64),
+  disableGdbPlugin ? !enablePlugin || (stdenv.targetPlatform.isAvr && stdenv.hostPlatform.isDarwin),
   nukeReferences,
   callPackage,
   majorMinorVersion,
   apple-sdk_14,
   apple-sdk_15,
   darwin,
+  dejagnu,
 }:
 
 let
@@ -138,6 +137,7 @@ let
       cargo
       withoutTargetLibc
       darwin
+      dejagnu
       disableBootstrap
       disableGdbPlugin
       enableDefaultPie

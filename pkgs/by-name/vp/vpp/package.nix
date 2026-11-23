@@ -255,7 +255,15 @@ let
       "bindnow"
     ];
     enableParallelBuilding = true;
-    env.VPP_BUILD_HOST = "nixpkgs";
+    env = {
+      VPP_BUILD_HOST = "nixpkgs";
+    }
+    // lib.optionalAttrs buildStdenv.cc.isGNU {
+      NIX_CFLAGS_COMPILE = toString [
+        "-Wno-error=discarded-qualifiers"
+        "-Wno-error=maybe-uninitialized"
+      ];
+    };
     cmakeFlags = lib.mapAttrsToList (name: value: lib.cmakeFeature name (cmakeValue value)) options;
     postPatch = ''
       patchShebangs scripts tools vpp-api

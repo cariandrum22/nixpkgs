@@ -7,21 +7,22 @@
   dbus,
   sqlite,
   file,
+  libgit2,
   makeWrapper,
 }:
 
 rustPlatform.buildRustPackage (finalAttrs: {
   pname = "krankerl";
-  version = "0.14.1";
+  version = "0.14.3";
 
   src = fetchFromGitHub {
     owner = "ChristophWurst";
     repo = "krankerl";
     rev = "v${finalAttrs.version}";
-    sha256 = "sha256-jQe4rDhRQdTILjbgMN1Fa3O2OCJxJOr8nmKDeI1AFos=";
+    sha256 = "sha256-Ms3i8b2y3tnQUGrjZpnifB5e8JP3vQC+IicwZ67pIJY=";
   };
 
-  cargoHash = "sha256-lfW28vMxhnf6R1y82itf9dUTAtelH39Am3JYL/YlQNo=";
+  cargoHash = "sha256-c6/0l2aik7MKOfqhwk1Tp6jTZST7vjG6gNM03DP/nGg=";
 
   nativeBuildInputs = [
     pkg-config
@@ -32,6 +33,7 @@ rustPlatform.buildRustPackage (finalAttrs: {
     openssl
     dbus
     sqlite
+    libgit2
   ];
 
   nativeCheckInputs = [

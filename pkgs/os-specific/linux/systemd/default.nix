@@ -145,6 +145,7 @@
   withRemote ? true,
   withResolved ? true,
   withShellCompletions ? true,
+  withStorage ? true,
   withSysinstall ? true,
   withSysusers ? true,
   withSysupdate ? true,
@@ -198,6 +199,7 @@ assert withImportd -> withOpenSSL;
 assert withUkify -> (withEfi && withBootloader);
 assert withRepart -> withCryptsetup;
 assert withBootloader -> withEfi;
+assert withStorage; # installed by default in 262, meson option in 263
 
 let
   wantCurl = withRemote || withImportd || withImds;
@@ -478,7 +480,7 @@ stdenv.mkDerivation (finalAttrs: {
 
     # NSS
     (lib.mesonEnable "nss-mymachines" (withNss && withMachined))
-    (lib.mesonEnable "nss-resolve" withNss)
+    (lib.mesonEnable "nss-resolve" (withNss && withResolved))
     (lib.mesonBool "nss-myhostname" withNss)
     (lib.mesonBool "nss-systemd" withNss)
 
@@ -542,6 +544,8 @@ stdenv.mkDerivation (finalAttrs: {
     (lib.mesonBool "hwdb" withHwdb)
     (lib.mesonBool "timedated" withTimedated)
     (lib.mesonBool "timesyncd" withTimesyncd)
+    (lib.mesonBool "nsresourced" withNsresourced)
+    (lib.mesonBool "mountfsd" withMountfsd)
     (lib.mesonBool "userdb" withUserDb)
     (lib.mesonBool "coredump" withCoredump)
     (lib.mesonBool "firstboot" withFirstboot)
@@ -558,12 +562,6 @@ stdenv.mkDerivation (finalAttrs: {
     (lib.mesonBool "create-log-dirs" false)
     (lib.mesonBool "smack" true)
     (lib.mesonBool "b_pie" true)
-  ]
-  ++ lib.optionals withNsresourced [
-    (lib.mesonBool "nsresourced" withNsresourced)
-  ]
-  ++ lib.optionals withMountfsd [
-    (lib.mesonBool "mountfsd" withMountfsd)
   ]
   ++ lib.optionals (withLibBPF && vmlinux-btf != null) [
     (lib.mesonOption "vmlinux-h" "provided")
@@ -725,10 +723,12 @@ stdenv.mkDerivation (finalAttrs: {
       withNspawn
       withRepart
       withPortabled
+      withStorage
       withSysupdate
       withTimedated
       withTpm2Tss
       withUtmp
+      withVmspawn
       util-linux
       kmod
       kbd
