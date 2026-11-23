@@ -248,3 +248,41 @@ Historical validation of the 26.06 configuration on x86_64-linux:
 - Package option and NixOS configuration checks pass. The NixOS VM test evaluates;
   VM execution and hardware packet-processing tests require KVM and the target
   network hardware, which are unavailable in the build environment.
+
+## Migrating from earlier branches of this fork
+
+Use `github:cariandrum22/nixpkgs/vpp-26.10` as the flake input and commit
+`flake.lock` to pin the revision. This branch supersedes the published `vpp`
+(23.06), `vpp-25.10` and `vpp-26.02` branches. Its local development name was
+`vpp-26.10-integration`.
+
+| Earlier name | Name to use in 26.10 |
+| --- | --- |
+| `pkgs.vpp-extended`, `pkgs.vppPackages.extended`, `pkgs.vppPackages.upstream` | `pkgs.vpp`. Use `.override` to select the desired features. |
+| Extended package outputs `vpp-core` and `vpp-papi` | `pkgs.vpp` and `pkgs.vpp.pythonBindings`. Use `pkgs.vpp.override { withPython = false; }` for a core-only installation. |
+| Development flags `withOpenSSL`, `withPcap`, `withLinuxCp` | `withOpenssl`, `withLibPcap`, `withNetlinkLibs`, respectively |
+| `services.vpp.unix`, `services.vpp.cpu`, `services.vpp.dpdk` | Move each section under `services.vpp.settings`. Keep service-level `extraConfig` at `services.vpp.extraConfig`. |
+| `services.vpp.dpdk.dev."0000:00:09.0"` | `services.vpp.settings.dpdk."dev 0000:00:09.0"`. Queue counts and descriptor counts go inside the device block. |
+
+The `pkgs.vpp` build uses CMake, system DPDK with driver SDK headers,
+VPP-compatible Quicly/Picotls, and a separate Python bindings build. LLVM 21
+and DPDK 26.07 are the versions used for 26.10. The 23.06 recipe included
+mbedTLS 2.x. For its `tlsmbedtls` plugin on 26.10, explicitly supply a
+compatible library with `withMbedtls` and `mbedtlsPackage`. The default build
+provides the OpenSSL and Picotls TLS plugins.
+
+The VRRP test retains the two-router service configuration with `main-core 0`,
+`workers 1`, PCI devices `0000:00:09.0` and `0000:00:0a.0`, foreground
+operation, full core dumps, group `vpp`, and CLI socket `/run/vpp/cli.sock`.
+The test configures VFIO, huge pages and interface preparation on its routers.
+For a deployment, set those host-specific parameters for the target machine.
+
+### Obsolete startup settings
+
+- In `dpdk`, remove `kni` and `num-mbufs`. Set the VPP buffer count with
+  `settings.buffers.buffers-per-numa` when needed. Remove device-level
+  `vlan-strip-offload` and `hqos` blocks, including `hqos-thread`.
+  The DPDK plugin also reports `socket-mem` as deprecated.
+- In `cpu`, remove `io`, `main-thread-io`, `corelist-io`,
+  `coremask-hqos-threads` and `corelist-hqos-threads`. For worker placement,
+  use `workers`, `corelist-workers` or `coremask-workers` as appropriate.
