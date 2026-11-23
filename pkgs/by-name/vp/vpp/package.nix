@@ -3,6 +3,7 @@
   llvmPackages_21,
   nix-update-script,
   fetchFromGitHub,
+  fetchpatch2,
   callPackage,
   cmake,
   pkg-config,
@@ -227,6 +228,19 @@ let
     inherit version src;
     sourceRoot = "${finalAttrs.src.name}/src";
     patches = [
+      # Backports from FD.io stable/2610 since the v26.10 release.
+      (fetchpatch2 {
+        name = "fix-punt-drop-feature-arc.patch";
+        url = "https://github.com/FDio/vpp/commit/d5679a54c8577534c136bff2fde025ab48b3e779.patch?full_index=1";
+        relative = "src";
+        hash = "sha256-xh/b8hf3jtnoHVK1dSZX5W78hHLORHG9kmO0UwWqlbw=";
+      })
+      (fetchpatch2 {
+        name = "ip6-nd-skip-local-addresses.patch";
+        url = "https://github.com/FDio/vpp/commit/9376905b9a78e85204986a9eaf9e7228edd71ad4.patch?full_index=1";
+        relative = "src";
+        hash = "sha256-Vv9/8aEPhilXuEeHE7NLgxdZftLByAbgUczRCpnKCOg=";
+      })
       ./0001-explicity-include-std-array.patch
       ./cnat-initialize-port-counters.patch
       ./use-dynamic-libs.patch
